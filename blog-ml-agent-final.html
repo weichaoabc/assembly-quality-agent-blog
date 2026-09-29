@@ -1,0 +1,618 @@
+<!doctype html>
+<html lang="zh-CN"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="description" content="基于 Amazon Bedrock AgentCore 和 Amazon SageMaker AI 构建装配质量分析 Agent，介绍客户场景、架构设计、工具与 Skill、产线接入和中国区域部署实践。">
+<title>基于 Amazon Bedrock AgentCore 和 Amazon SageMaker AI 构建装配质量分析 Agent</title><style>
+:root{--ink:#20252b;--muted:#636b74;--paper:#ffffff;--line:#dfe2e5;--accent:#3b5268}
+*{box-sizing:border-box}html{scroll-behavior:smooth;scroll-padding-top:35px}body{margin:0;background:var(--paper);color:var(--ink);font-family:"PingFang SC","Noto Sans CJK SC",sans-serif;font-size:17px;line-height:1.95}
+a{color:#155e74;text-underline-offset:4px}button{font:inherit}
+.masthead{max-width:1100px;margin:auto;padding:26px 0 18px;border-bottom:1px solid var(--line);display:flex;justify-content:space-between;gap:30px;font-size:12px}
+.masthead b{font-weight:600}.masthead span{color:var(--muted)}
+.hero{max-width:1100px;margin:0 auto;padding:34px 0 24px}
+h1{font-family:"Songti SC","Noto Serif CJK SC",serif;font-size:clamp(28px,3vw,38px);font-weight:600;line-height:1.55;max-width:1100px;margin:0;text-wrap:balance}
+.layout{max-width:1100px;margin:auto;display:grid;grid-template-columns:180px minmax(0,870px);gap:50px;align-items:start}
+nav{position:sticky;top:35px;font-size:13px;padding-top:4px;line-height:1.7}nav b{display:block;font-size:12px;color:var(--muted);letter-spacing:.1em;margin-bottom:22px}
+nav a{display:block;padding:11px 0;color:var(--muted);text-decoration:none;border-top:1px solid var(--line)}
+nav a:hover{color:var(--accent)}nav span{display:block;font:11px "Avenir Next",sans-serif;color:#819399;margin-bottom:5px}
+article{min-width:0}article>p:first-child{font-size:14px;color:var(--muted);margin-top:0}
+p{margin:0 0 20px}strong{font-weight:600}h2{font-family:"Songti SC",serif;font-size:27px;line-height:1.5;margin:42px 0 21px;padding-top:22px;border-top:1px solid var(--line)}
+h3{font-size:20px;font-weight:600;margin:30px 0 15px;line-height:1.5;color:var(--ink)}
+h4{font-size:17px;font-weight:600;margin:24px 0 12px;line-height:1.7;color:var(--ink)}
+figure{margin:32px -18px 37px}figure img{display:block;width:100%;height:auto;background:white;border:1px solid var(--line)}
+figure img[src$="quality-workflow.png"]{max-width:650px;margin:auto}
+.zoom-image{padding:0;border:0;background:transparent;display:block;width:100%;cursor:zoom-in}
+.zoom-image:focus-visible{outline:3px solid var(--accent);outline-offset:6px}
+figcaption{font-size:13px;line-height:1.85;color:var(--muted);padding:13px 18px 0}
+.workflow-video{background:#f7f8f9;border:1px solid var(--line);padding-bottom:12px}
+.workflow-video video{display:block;width:100%;height:auto;aspect-ratio:8/5;background:#15242f}
+.video-chapters{display:flex;flex-wrap:wrap;gap:7px;padding:12px 18px 0}
+.video-chapters button{font-size:12px;line-height:1.5;background:white;color:#284956;border:1px solid #c5d3d6;padding:6px 10px;border-radius:3px;cursor:pointer}
+.video-chapters button:hover,.video-chapters button:focus-visible{border-color:var(--accent);color:var(--accent)}
+.table-wrap{overflow-x:auto;margin:27px 0 30px;border-top:1px solid #9da6ae;border-bottom:1px solid var(--line)}
+.tool-catalog{margin:22px 0 28px;border-top:1px solid var(--line);border-bottom:1px solid var(--line)}
+.tool-catalog summary{cursor:pointer;font-size:15px;font-weight:600;padding:14px 8px;line-height:1.65}
+.tool-catalog summary:focus-visible{outline:2px solid var(--accent);outline-offset:3px}
+.tool-catalog .table-wrap{margin:0;border-bottom:0}
+.tool-catalog[data-catalog="ml"] table{min-width:690px}
+.tool-catalog[data-catalog="runtime"] table{min-width:430px}
+table{width:100%;border-collapse:collapse;font-size:14px;line-height:1.7}th,td{padding:13px 14px;text-align:left;border-bottom:1px solid var(--line);min-width:100px}
+thead{background:#f5f6f7}th{font-weight:600}tr:last-child td{border-bottom:0}
+code{font-family:Menlo,monospace;font-size:12px;overflow-wrap:anywhere}ol{padding-left:24px}li{margin:14px 0}
+hr{border:0;border-top:1px solid var(--line);margin:55px 0 30px}
+footer{max-width:1100px;margin:40px auto 0;padding:24px 0 36px;border-top:1px solid var(--line);font-size:12px;color:var(--muted)}
+dialog{border:0;border-radius:6px;padding:56px 24px 24px;max-width:96vw;max-height:96vh;width:1600px;background:#f8faf9;color:var(--ink)}
+dialog::backdrop{background:#142d40df}dialog img{display:block;max-width:100%;height:auto;margin:auto}
+.close{position:absolute;right:20px;top:12px;border:1px solid #aac0c7;border-radius:5px;background:white;padding:4px 14px;cursor:pointer}
+@media(max-width:1250px){.hero,.layout,footer{margin-left:40px;margin-right:40px}.layout{grid-template-columns:175px minmax(0,1fr);gap:40px}.masthead{padding-left:40px;padding-right:40px}}
+@media(max-width:850px){.masthead{padding:24px}.masthead span{display:none}.hero{margin:0;padding:38px 24px 27px}.deck{font-size:17px}.layout{display:block;margin:0 24px}nav{position:static;border-bottom:1px solid var(--line);margin-bottom:34px;padding-bottom:20px;display:none}h2{font-size:27px;margin-top:45px}h3{font-size:21px}figure{margin:28px -10px}figcaption{padding-left:10px;padding-right:10px}footer{margin:42px 24px 0}body{font-size:16px}.table-wrap{margin-left:0;margin-right:0}dialog{padding:48px 8px 10px}}
+@media print{nav,.masthead span,.close{display:none}.masthead,.hero,.layout,footer{margin:0;padding:15px 0}.layout{display:block}h1{font-size:30px}body{font-size:11px}h2{font-size:21px;break-after:avoid}h3{font-size:16px;break-after:avoid}figure{margin:18px 0;break-inside:avoid}figcaption{font-size:10px}table{font-size:10px}a{color:inherit}button{cursor:default}}
+
+.resource-links{display:flex;flex-wrap:wrap;gap:18px;font-size:13px;margin-top:18px}.resource-links a{white-space:nowrap}pre{overflow:auto;padding:16px;background:#f7f8f9;border:1px solid var(--line);line-height:1.6}pre code{white-space:pre;overflow-wrap:normal}article a{overflow-wrap:anywhere}article>h2[id^="section-"]{scroll-margin-top:25px}.masthead a{font-size:12px}.table-wrap table{min-width:600px}.tool-catalog{scroll-margin-top:20px}
+.table-wrap .model-summary{min-width:0;table-layout:fixed}.model-summary th,.model-summary td{min-width:0;overflow-wrap:anywhere}.model-summary th:first-child,.model-summary td:first-child{width:23%}
+@media(max-width:850px){.model-summary th:first-child,.model-summary td:first-child{width:6.5em}}
+</style></head><body>
+<header class="masthead"><b>方案实践</b><span>企业 ML Agent 实践系列</span></header>
+<section class="hero"><h1>基于 Amazon Bedrock AgentCore 和 Amazon SageMaker AI 构建装配质量分析 Agent</h1><div class="resource-links"><a href="blog-ml-agent-paper.docx">Word 文档</a><a href="blog-ml-agent-dataset.zip" download>示例数据（ZIP）</a><a href="blog-ml-agent-test-dataset.zip" download>评估数据（ZIP）</a><a href="blog-ml-agent-practice-guide.html">部署与操作指南</a><a href="blog-ml-agent-validation.html">数据与结果说明</a></div></section>
+<main class="layout"><nav aria-label="文章目录"><b>本文内容</b><a href="#section-1"><span>01</span>客户问题与适用范围</a><a href="#section-2"><span>02</span>架构设计与取舍</a><a href="#section-3"><span>03</span>一次质量分析任务</a><a href="#section-4"><span>04</span>从分析结果到业务决策</a><a href="#section-5"><span>05</span>部署与实践</a><a href="#section-6"><span>06</span>结语</a><a href="#section-7"><span>07</span>附录A ML 工具清单</a><a href="#section-8"><span>08</span>附录B 业务 Skill 清单</a><a href="#section-9"><span>09</span>附录C Agent 辅助工具</a></nav><article>
+<p>发动机完成装配后，能否一次通过下线测试，是质量团队关注的问题。拧紧记录、工位等待和设备状态中包含了有用的信息，但把这些记录整理成数据、训练模型，再将结果用于现场工作，需要质量、数据和平台团队协作。</p>
+<p>本方案基于 Amazon Bedrock AgentCore 和 Amazon SageMaker AI 构建装配质量分析 Agent。工程师通过对话提出分析要求，Agent 调用工具完成数据检查、AutoGluon 建模、模型评估和预测，并协助解释结果。模型在发动机首次下线测试前给出风险分数，供质量团队安排额外人工检查。AgentCore 承载 Agent 并提供 MCP 工具接入，SageMaker AI 承担模型训练与在线推理，业务 Skill 指导 Agent 按质量分析流程组织操作。</p>
+<p>本文从业务场景、架构设计、使用流程和部署实践四个方面介绍方案，并说明中国区域的部署安排。文中的装配数据为模拟数据，用于说明建模方法与业务流程。配套示例数据和实践指南集中在文末，便于团队结合自身产线开展实践。</p>
+<h2 id="section-1">客户问题与适用范围</h2>
+<h3>明确模型要解决的问题</h3>
+<p>本例使用 AutoGluon 训练一个表格数据的二分类模型，预测发动机能否通过首次下线测试。模型学习历史装配记录与测试结果之间的关系，再为尚未测试的发动机输出“不通过”的风险分数。</p>
+<div aria-label="预测模型的输入与输出" class="table-wrap" role="region" tabindex="0"><table class="model-summary">
+<thead>
+<tr>
+<th scope="col">建模要素</th>
+<th scope="col">本文的具体设置</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>输入数据</td>
+<td>每台发动机的拧紧扭矩与角度偏差、重复拧紧、工位等待、设备状态等装配记录</td>
+</tr>
+<tr>
+<td>训练标签</td>
+<td>该发动机首次下线测试的“通过”或“不通过”结果</td>
+</tr>
+<tr>
+<td>预测时点</td>
+<td>装配完成后、首次下线测试之前，只使用当时已经获得的数据</td>
+</tr>
+<tr>
+<td>预测输出</td>
+<td>每台待测试发动机对应的不通过风险分数</td>
+</tr>
+</tbody>
+</table></div>
+<p>这里的首次测试，指第一次获得有效结果的下线测试。后续复测通过，不会改写首次测试失败的标签；尚未取得有效结果的发动机，也不会被当作通过样本训练模型。</p>
+<p>质量团队可以利用风险分数安排额外人工检查。工程师或现场人员核对装配记录、工位异常和工具状态，必要时检查发动机实物，再决定处理措施。工程师也可以与 Agent 交流，比较模型表现、查询任务结果或理解预测依据。</p>
+<p>“建议人工检查的发动机清单”列出发动机编号和风险分数。质量团队确定风险阈值及每天可以检查的数量，配套程序据此筛选发动机。风险分数帮助分配检查资源，所有发动机仍按既定流程完成下线测试与放行。</p>
+<h3>方案提供的能力</h3>
+<p>质量分析往往从一个业务问题开始，经过多轮数据确认和模型调整，才形成可使用的结果。Agent 把这些操作放进连续的对话中，并将每一步与实际任务、模型和结果文件关联起来。</p>
+<div aria-label="对照表，可横向滚动" class="table-wrap" role="region" tabindex="0"><table>
+<thead>
+<tr>
+<th scope="col">实际需求</th>
+<th scope="col">方案提供的能力</th>
+<th scope="col">工程师获得的结果</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>将质量问题转成建模任务</td>
+<td>Agent 确认目标与数据，调用 AutoGluon 工具</td>
+<td>可继续跟进的训练任务与模型</td>
+</tr>
+<tr>
+<td>跟进后台训练</td>
+<td>提交任务后，可在对话或工作台查询进度</td>
+<td>无需停留在原对话中等待训练</td>
+</tr>
+<tr>
+<td>理解并比较模型</td>
+<td>查询评估结果、特征影响和模型版本</td>
+<td>有数据依据的分析结论</td>
+</tr>
+<tr>
+<td>对新发动机进行评分</td>
+<td>使用已登记模型执行文件预测或在线预测</td>
+<td>可用于筛选检查对象的风险分数</td>
+</tr>
+<tr>
+<td>将模型纳入业务运行</td>
+<td>配置访问权限、发布审核、监控和资源管理</td>
+<td>可管理、可追溯的模型服务</td>
+</tr>
+</tbody>
+</table></div>
+<h3>Agent 与质量团队如何协作</h3>
+<p>质量团队负责明确预测目标、检查条件和处置方式；数据团队负责装配记录、测试结果及字段含义；平台团队负责工具接入、计算环境和权限。Agent 使用已有基础模型理解要求，通过工具调用 AutoGluon 训练质量预测模型，并协助查询和解释结果。</p>
+<p>例如，工程师可以先询问数据能否用于建模，再要求比较不同特征，随后追问某项指标为什么变化。业务 Skill 指导 Agent 按照约定的步骤处理这些请求，工具服务执行实际计算并保存结果。现场检查和模型发布审核由人员负责。</p>
+<p>对于已经稳定的日常评分流程，可以通过调度程序调用同一套工具服务；需要澄清、比较和追问的分析工作，则可以保留对话入口。这样，交互式分析与日常运行共享建模能力，并分别采用适合的使用方式。</p>
+<figure><button aria-label="放大图片：工程师通过 Agent 调用工具，用装配记录和历史测试结果训练二分类模型，再对待测试发动机评分。配套程序按规则筛选建议人工检查的发动机，现场人员实施检查。" class="zoom-image" type="button"><img alt="工程师通过 Agent 调用工具，用装配记录和历史测试结果训练二分类模型，再对待测试发动机评分。配套程序按规则筛选建议人工检查的发动机，现场人员实施检查。" src="blog-ml-agent-assets/quality-workflow.png"/></button><figcaption>图1　从装配数据到风险评分和人工检查的业务流程。虚线部分表示与现场检查、工单及处理结果的业务衔接。</figcaption></figure>
+
+<h2 id="section-2">架构设计与取舍</h2>
+<h3>将 AutoGluon 能力封装为 Agent 工具</h3>
+<p>本方案围绕 AutoGluon 的 <code>TabularPredictor</code> 接口封装训练、评估和预测能力，并提供数据检查与任务查询工具。Agent 根据工具的名称、用途和输入说明选择操作，由工具背后的服务完成计算。下表列出一次建模过程中的主要调用，完整工具清单见附录A。[1][8]</p>
+<div aria-label="对照表，可横向滚动" class="table-wrap" role="region" tabindex="0"><table>
+<thead>
+<tr>
+<th scope="col">工程师的要求</th>
+<th scope="col">Agent 调用的工具</th>
+<th scope="col">工具执行与返回</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>检查这份数据能否用于建模</td>
+<td><code>inspect_dataset</code></td>
+<td>检查字段、缺失值与标签分布</td>
+</tr>
+<tr>
+<td>用这些数据训练模型</td>
+<td><code>train_model</code></td>
+<td>提交 AutoGluon 后台训练，返回任务和模型编号</td>
+</tr>
+<tr>
+<td>查看刚才的训练进展</td>
+<td><code>get_training_status</code></td>
+<td>查询训练状态，确认模型是否可用</td>
+</tr>
+<tr>
+<td>用指定数据评估模型</td>
+<td><code>evaluate_model</code></td>
+<td>计算指标，保存评估结果及数据来源</td>
+</tr>
+<tr>
+<td>为新数据生成预测</td>
+<td><code>predict</code></td>
+<td>使用已登记模型预测，将结果文件保存到 S3</td>
+</tr>
+</tbody>
+</table></div>
+<p>例如，工程师要求“训练模型后告诉我效果”时，Agent 先确认数据、预测目标和资源范围，再提交训练。模型就绪后，Agent 调用评估工具，并依据工具返回的指标解释结果。任务和模型编号把这些操作连接起来，也让工程师能够从工作台继续查看。</p>
+<h3>通过 MCP 发现并调用工具</h3>
+<p>AgentCore Gateway 将工具服务以 MCP 接口提供给 Agent。开发人员将承载工具实现的 Lambda 函数注册为 Gateway 目标，登记工具名称、用途和输入参数，再为 Agent 配置允许使用的工具。[4]</p>
+<p>Agent 应用通过 MCP 的 <code>tools/list</code> 获取工具说明，通过 <code>tools/call</code> 发起调用。Gateway 将请求转给 Lambda 中的 ML 工具服务，服务完成权限与输入检查后执行，并将结果返回 Agent。[4][7]</p>
+<p>因此，工程师与 Agent 对话时，Agent 能够使用的是已经注册并配置的建模工具。Lambda 承载这些工具的实现；AutoGluon 提供建模计算能力。两者通过 Gateway 接入对话流程，各自承担不同职责。</p>
+<figure><button aria-label="放大图片：Agent 通过 MCP 发现和调用项目封装的训练、评估、预测及任务工具；基础模型服务按部署区域选择，AutoGluon 在各自执行环境中完成计算。" class="zoom-image" type="button"><img alt="Agent 通过 MCP 发现和调用项目封装的训练、评估、预测及任务工具；基础模型服务按部署区域选择，AutoGluon 在各自执行环境中完成计算。" src="blog-ml-agent-assets/solution-architecture.png"/></button><figcaption>图2　装配质量分析 Agent 的工具接入与计算架构。AgentCore Runtime 运行 Agent，Gateway 提供 MCP 工具接入，Lambda 承载 ML 工具；AutoGluon 训练与在线推理使用 SageMaker AI，小规模评估和文件预测在 Lambda 中执行。基础模型服务按部署区域和业务要求选择。</figcaption></figure>
+
+<h3>用业务 Skill 组织工具调用</h3>
+<p>工具说明回答“这个操作能做什么”，业务 Skill 则告诉 Agent 在质量分析中何时使用它、先确认哪些条件，以及如何解释结果。例如，训练前应确认预测目标和数据范围，评估时应区分用于调整模型的数据和用于最终判断效果的数据，生成风险分数后应说明它的业务用途。</p>
+<p>工程师可以用业务语言提出要求，Skill 帮助 Agent 将要求组织成一系列工具调用。调整质量分析流程时，可以修改 Skill 中的业务说明；增加新的计算能力时，则需要扩展工具实现及 Gateway 配置。</p>
+<p>权限、资源限制和发布条件由服务端执行。Skill 指导工作顺序，后端对实际操作负责。业务 Skill 清单见附录B；日期、文件与 Skill 读取等 Agent 辅助工具见附录C。</p>
+<h3>AutoGluon 的执行环境</h3>
+<p>工具入口与建模计算分开设计。Lambda 中的训练工具提交 SageMaker AI Training Job，AutoGluon 随后在训练容器中拟合并选择模型。小规模模型评估和文件预测由 Lambda 加载模型执行；需要在线预测时，工具将请求转交给 SageMaker AI 端点。</p>
+<div aria-label="对照表，可横向滚动" class="table-wrap" role="region" tabindex="0"><table>
+<thead>
+<tr>
+<th scope="col">执行环节</th>
+<th scope="col">运行位置</th>
+<th scope="col">执行方式</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>模型训练</td>
+<td>SageMaker AI 训练容器</td>
+<td>读取 S3 数据，训练并选择模型，将模型文件写回 S3</td>
+</tr>
+<tr>
+<td>小规模评估与文件预测</td>
+<td>ML 工具服务的 Lambda 容器</td>
+<td>加载已登记模型，计算指标或生成预测文件</td>
+</tr>
+<tr>
+<td>在线预测</td>
+<td>SageMaker AI 推理容器</td>
+<td>加载指定模型，响应业务系统的预测请求</td>
+</tr>
+</tbody>
+</table></div>
+<p>Agent 使用 Strands Agents SDK 组织模型交互与工具调用，在 AgentCore Runtime 中运行。基础模型服务负责理解业务要求和选择工具，可根据部署区域和企业要求配置。[2][3] 门户通过 Amazon API Gateway 和 Lambda 提供聊天与 ML 工作台；Amazon S3 保存数据、模型及预测文件，Amazon DynamoDB 保存任务和审核记录，Amazon CloudWatch 提供日志与指标。</p>
+<p>训练、推理和工具服务的容器镜像由 Amazon ECR 管理。模型版本同时关联训练数据与特征处理步骤，使评估、文件预测和在线推理使用一致的数据处理方式。[5]</p>
+<p>随着数据量或模型规模增长，评估可以采用 SageMaker AI Processing，批量预测可以采用独立作业或适配 Batch Transform。[11] 这类部署中，Lambda 继续负责接收工具请求、提交作业和查询结果，Agent 通过任务编号跟进进度。具体执行方式应结合数据规模、响应时间和成本选择。</p>
+<h3>关键设计选择</h3>
+<p>架构将业务交互、工具接入和计算执行分开，便于在业务流程变化或计算规模增长时调整相应部分。</p>
+<div aria-label="对照表，可横向滚动" class="table-wrap" role="region" tabindex="0"><table>
+<thead>
+<tr>
+<th scope="col">设计选择</th>
+<th scope="col">在本方案中解决的问题</th>
+<th scope="col">需要考虑的取舍</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>用 MCP 接入 AutoGluon 工具</td>
+<td>为 Agent 提供统一的建模能力入口</td>
+<td>工具说明与后端实现需要同步维护</td>
+</tr>
+<tr>
+<td>用 Skill 组织业务步骤</td>
+<td>让 Agent 按质量分析流程调用工具</td>
+<td>业务规则需要清晰，并由服务端执行必要约束</td>
+</tr>
+<tr>
+<td>分开训练提交与状态查询</td>
+<td>支持长时间运行的训练及后续追问</td>
+<td>需要维护任务状态和恢复机制</td>
+</tr>
+<tr>
+<td>按规模选择计算环境</td>
+<td>兼顾小规模交互与大规模后台作业</td>
+<td>需要评估模型加载、计算耗时与资源成本</td>
+</tr>
+<tr>
+<td>分别保存会话与任务记录</td>
+<td>让对话和计算结果都能持续查询</td>
+<td>需要用稳定的任务和模型编号建立关联</td>
+</tr>
+</tbody>
+</table></div>
+<p>企业可以从一个明确的质量分析场景开始，逐步扩展工具和使用团队。统一工具接入、最小权限和运行监控，有助于把一次建模工作沉淀为持续可用的企业服务。[10]</p>
+<h3>会话任务与模型的关联</h3>
+<p>工程师关闭页面后，训练任务仍可能继续运行。因此，会话历史和后台任务分别保存：门户在 DynamoDB 中保存聊天历史，ML 服务维护训练进展、模型版本、评估和审核记录。需要跨会话检索上下文时，可结合部署区域支持的记忆能力进行配置，例如 AgentCore Memory。[9]</p>
+<p>工程师再次询问“刚才的模型训练完成了吗”，Agent 根据已有任务编号查询后台状态。网络中断后的重试也沿用原任务信息，避免把一次操作重复提交为多个训练任务。</p>
+<p>模型记录关联训练数据、处理步骤和模型文件。工程师既可以在对话中追问，也可以进入工作台查看模型及其评估结果。这样的关联让分析结论有依据可查，也便于团队交接和后续改进。</p>
+<h3>身份与执行授权</h3>
+<p>企业部署时，可通过 OpenID Connect 对接 Microsoft Entra ID，将企业用户映射到应用角色和工作区。[6] 质量工程师、数据人员和平台管理员根据职责获得相应的数据访问与工具调用权限。</p>
+<p>工具服务在执行前核验操作者、工作区、请求内容及资源范围。本方案通过短时授权信息与 AWS KMS 消息认证码关联这些信息，使权限检查落实到实际执行环节。</p>
+<p>模型用于生产前，由独立审核人确认用途和评估依据。审核与指定模型版本关联，模型或评估条件变化后重新确认。工程师可以通过 Agent 推进分析工作，生产发布仍遵循企业既有的质量管理与审批流程。</p>
+<h2 id="section-3">一次质量分析任务</h2>
+<h3>准备装配数据与测试结果</h3>
+<p>建模首先需要把装配过程与下线测试结果对应起来。以发动机编号为关联依据，将扭矩与角度偏差、重复拧紧、工位等待和设备状态等记录整理为模型输入，再加入首次下线测试的通过或不通过结果。</p>
+<p>这些字段必须在预测时已经可用。例如，在下线测试之后才产生的测量值和返修记录，可以帮助分析结果，但不能作为测试前预测的输入。同一台发动机的记录也应归入同一组数据，避免模型在评估时再次看到训练中使用过的对象。</p>
+<p>历史数据按时间分为训练集、验证集和测试集：较早的数据用于训练，随后一段用于调整模型，较新的数据用于判断模型面对新生产数据时的表现。尚未获得有效测试结果的发动机可以参与评分，待结果返回后再纳入效果分析。</p>
+<p>文末的<a download="" href="blog-ml-agent-dataset.zip">示例数据与字段说明（ZIP）</a>提供装配记录、测试标签及预测结果，可帮助团队理解数据如何组织。实际实施时，由质量与数据团队共同确定字段含义、数据范围及更新频率。</p>
+<h3>通过对话提出分析要求</h3>
+<p>完成数据准备后，工程师可以提出这样的要求：“请根据这些装配记录训练模型，预测发动机能否一次通过下线测试。先检查数据，再比较模型效果，并为新发动机生成风险分数，帮助我们安排额外人工检查。”</p>
+<p>Agent 根据业务 Skill 确认数据、预测目标和资源范围，调用数据检查工具查看字段、缺失值和标签分布。发现必要条件缺失时，Agent 在对话中询问；涉及工艺含义或质量规则的判断，由工程师确认。</p>
+<figure><button aria-label="放大图片：门户中的 ML Agent 对话、工具调用与训练任务卡片。" class="zoom-image" type="button"><img alt="门户中的 ML Agent 对话、工具调用与训练任务卡片。" src="blog-ml-agent-assets/ui-chat.png"/></button><figcaption>图3　工程师通过对话发起建模，任务卡片连接聊天入口与 ML 工作台。</figcaption></figure>
+
+<h3>提交训练并跟踪进展</h3>
+<p>确认输入后，Agent 通过 Gateway 调用训练工具。Lambda 提交 SageMaker AI 训练作业，并返回任务和模型编号。AutoGluon 在后台完成模型训练与选择，将模型文件保存到 S3。</p>
+<p>工程师可以继续处理其他工作，随后在对话中查询进展，也可以进入工作台查看训练阶段和运行记录。训练提交与状态查询分别作为工具提供，使对话结束后仍能跟进同一任务。</p>
+<p>模型文件及登记信息就绪后，模型进入可使用状态。如果训练完成后遇到登记异常，平台可以基于已有模型文件恢复记录，帮助工程师继续后续评估。</p>
+<figure><button aria-label="放大图片：工作台展示训练任务的阶段、进度与运行信息。" class="zoom-image" type="button"><img alt="工作台展示训练任务的阶段、进度与运行信息。" src="blog-ml-agent-assets/ui-training.png"/></button><figcaption>图4　ML 工作台集中展示训练进展和资源使用情况，支持工程师跟进后台任务。</figcaption></figure>
+
+<h3>评估模型并生成风险分数</h3>
+<p>模型就绪后，Agent 调用评估工具计算指标，并将结果与所使用的数据和模型版本关联。工程师可以继续要求比较另一组特征或另一轮训练，Agent 调用相应工具组织结果，完整指标和记录保留在工作台。</p>
+<p>AutoGluon 的预测分数还需要放到质量管理场景中理解。由于测试不通过的发动机通常只占一部分，工程师除了关注整体模型指标，还要考虑：有限的人工检查能覆盖多少风险发动机，多少检查最终没有发现问题，以及检查是否来得及在下线测试前完成。</p>
+<figure><button aria-label="放大图片：模型与评估数据进入工具计算，评估记录供工作台和 Agent 查询。" class="zoom-image" type="button"><img alt="模型与评估数据进入工具计算，评估记录供工作台和 Agent 查询。" src="blog-ml-agent-assets/evaluation-traceability.png"/></button><figcaption>图5　评估结果与数据、模型版本关联，支持工程师比较模型并追溯分析依据。</figcaption></figure>
+
+<p>质量团队据此确定风险阈值和每日检查名额。配套示例按发动机到达顺序筛选：风险分数达到阈值、当天仍有名额，就加入建议人工检查的发动机清单。清单保存发动机编号和风险分数，方便与现场检查任务关联。</p>
+<p>投入现场使用时，还需要将清单接入工单或质量管理流程，由人员实施检查并记录处理结果。这些结果可与后续下线测试关联，帮助质量团队评估筛选方法并改进模型。</p>
+<figure class="workflow-video" id="workflow-video"><video aria-label="工作台操作演示，使用保存记录回放，含中文字幕" controls="" playsinline="" poster="blog-ml-agent-assets/ml-workflow-poster.jpg" preload="metadata"><source src="blog-ml-agent-assets/ml-workflow-replay.mp4" type="video/mp4"/></video><figcaption>工作台操作演示 · 保存记录回放 · 中文字幕。支持暂停、章节跳转与全屏查看。</figcaption><div aria-label="视频章节" class="video-chapters"><button data-seek="0" type="button">训练记录</button><button data-seek="16.1" type="button">数据质量</button><button data-seek="29.72" type="button">模型评估</button><button data-seek="48.33" type="button">在线验证</button><button data-seek="61.98" type="button">运行监控</button><button data-seek="75.62" type="button">发布审批</button><button data-seek="93.11" type="button">资源回收</button></div></figure>
+<h3>选择预测方式并完成发布</h3>
+<p>如果业务按批次处理数据，工程师可以让 Agent 为一批发动机生成预测文件。工具使用已登记模型计算风险分数并保存结果，质量团队按约定的时间获取清单。</p>
+<p>如果产线系统需要在发动机完成装配时立即获得评分，可以通过 SageMaker AI 端点提供在线预测。平台团队根据业务响应时间、调用量和可用性要求配置服务，并在发布前确认预测结果与业务要求一致。</p>
+<p>模型发布由独立审核人确认用途、数据和评估依据。用于试用的在线服务设置使用期限，结束后回收计算资源，同时保留模型和分析记录，以支持后续查询与迭代。</p>
+<figure><button aria-label="放大图片：模型登记、评估、试用、人工审核与资源管理流程。" class="zoom-image" type="button"><img alt="模型登记、评估、试用、人工审核与资源管理流程。" src="blog-ml-agent-assets/model-lifecycle.png"/></button><figcaption>图6　模型从训练结果进入业务服务的管理流程，涵盖评估、试用、人工审核和资源回收。</figcaption></figure>
+
+<h2 id="section-4">从分析结果到业务决策</h2>
+<h3>将模型效果与质量工作联系起来</h3>
+<p>风险评分的价值取决于它能否帮助质量团队安排工作。因此，模型评估需要同时考虑预测效果、现场处理能力和检查结果。只有把这些信息联系起来，才能判断采用何种筛选方式、如何设置阈值，以及是否值得扩大使用范围。</p>
+<div aria-label="对照表，可横向滚动" class="table-wrap" role="region" tabindex="0"><table>
+<thead>
+<tr>
+<th scope="col">业务问题</th>
+<th scope="col">观察内容</th>
+<th scope="col">决策用途</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>能否识别需要关注的发动机</td>
+<td>入选发动机中后续测试不通过的数量及占比</td>
+<td>判断清单对风险识别是否有帮助</td>
+</tr>
+<tr>
+<td>现场是否处理得过来</td>
+<td>每日入选数量、实际检查数量和处理时间</td>
+<td>调整阈值、检查名额与人员安排</td>
+</tr>
+<tr>
+<td>检查是否产生有效行动</td>
+<td>发现的问题、采取的措施和后续测试结果</td>
+<td>判断检查流程是否值得保留或改进</td>
+</tr>
+<tr>
+<td>Agent 是否便于工程师使用</td>
+<td>完成分析所需时间、追问次数及人工接手情况</td>
+<td>改进对话流程、工具说明和业务 Skill</td>
+</tr>
+</tbody>
+</table></div>
+<p>还应使用相同数据和检查资源，将模型方法与现行规则比较。配套模拟示例中，模型与简单扭矩规则覆盖了相同数量的已知失败发动机。这个结果说明，采用模型的依据应来自实际业务比较；现场数据、检查成本和处理结果共同决定最终选择。</p>
+<h3>将建模能力沉淀为可复用服务</h3>
+<p>对质量工程师而言，方案提供了从提出问题到查看结果的连续入口。训练产生可跟进的任务，评估提供有来源的指标，预测形成可交付的结果文件。工程师可以据此决定补充数据、继续建模，或进入业务试用。</p>
+<p>对平台团队而言，封装后的 AutoGluon 工具可以提供给不同业务 Agent，并沿用相同的权限、模型记录和运行管理方式。新的业务场景主要补充数据、预测目标及 Skill 中的业务要求，已有训练、评估和预测能力可以继续使用。</p>
+<p>对解决方案架构师而言，MCP 工具接口把 Agent 的业务交互与后端计算分开。更换基础模型、调整计算环境或扩展业务入口时，可以保留稳定的工具能力，并针对变化部分完善配置与运行管理。</p>
+<h2 id="section-5">部署与实践</h2>
+<h3>在中国区域部署</h3>
+<p>Amazon Bedrock AgentCore 已在亚马逊云科技中国北京和宁夏区域提供服务。企业可以使用 AgentCore Runtime 运行 Agent，通过 AgentCore Gateway 接入 MCP 工具，并结合中国区域的 SageMaker AI、Lambda、S3 和 DynamoDB 构建装配质量分析流程。[14]</p>
+<p>AgentCore 与基础模型服务分别配置。部署时，应为 Agent 选择可在目标环境中访问、具备所需工具调用能力的基础模型，按照企业的数据使用要求安排请求与结果的存放位置。AutoGluon 的训练与在线预测由 SageMaker AI 承担，工具定义和业务 Skill 延续本文的设计。</p>
+<p>中国区域目前不提供 AgentCore Memory。本方案可使用 DynamoDB 保存会话历史与任务记录，并在应用中按需增加历史信息检索；Gateway 使用 AWS IAM 或符合 OIDC 标准的身份提供方控制访问。[14] 平台团队在选定区域准备数据存储、容器镜像和执行角色，工程师通过统一的对话入口完成质量分析。</p>
+<h3>从一个业务场景开始接入</h3>
+<p>实施可以从一条产线和一个明确问题开始。质量团队确定预测对象、首次测试结果的定义，以及每日能够承担的额外检查量；数据团队准备可在预测时使用的装配记录，并与历史测试结果关联。</p>
+<p>平台团队随后部署 Agent、ML 工具服务和 SageMaker AI 计算环境，将训练、评估和预测工具接入 Gateway，为 Agent 配置工具与业务 Skill。数据存放位置、角色权限及资源范围统一在平台中配置，工程师通过业务语言发起任务。</p>
+<p>完成建模后，先根据业务节奏选择文件预测或在线服务。以每天集中安排检查为目标时，可以先使用文件预测；需要在装配完成后立即评分时，再接入产线系统的在线调用。工具注册、配置和操作步骤见文末<a href="blog-ml-agent-practice-guide.html">部署与操作指南</a>。</p>
+<h3>将预测结果接入现场工作</h3>
+<p>初期可以在原有质量流程旁运行风险评分，观察模型建议与现行规则的差异。质量团队确认数据、风险阈值和人员安排后，再在有限范围内开展额外人工检查。</p>
+<p>现场使用需要明确清单由谁接收、何时完成检查、如何记录发现的问题，以及哪些情况需要升级处理。检查记录与发动机编号、模型版本及后续测试结果关联，形成持续改进的数据依据。</p>
+<p>扩大使用范围前，应同时评估模型表现和 Agent 的使用效果：工程师能否理解结果、能否找回之前的任务，以及完成一次分析需要多少人工参与。将这些反馈用于调整数据、工具说明和业务 Skill，再逐步扩展到更多产线。</p>
+<h3>运行管理与成本控制</h3>
+<p>质量工程师关注任务是否完成、结果能否使用；平台团队关注训练与预测服务的状态、异常和资源用量。ML 工作台将这些信息与具体任务和模型关联，CloudWatch 提供日志与运行指标，便于定位问题和团队交接。</p>
+<p>训练失败或服务异常时，先查看对应任务及已有结果，再决定恢复或重新执行。对长期运行的在线服务，应根据实际调用量和响应时间安排容量；对临时试用服务，应明确结束时间和资源回收责任。</p>
+<p>成本主要来自基础模型调用、AgentCore、SageMaker AI 训练与在线推理，以及存储和日志等配套服务。企业可以通过限制训练资源、按需提供在线端点、设置预算告警及回收闲置资源管理支出。中国区域的资源与费用按中国区域配置和定价计算。[12][13][14]</p>
+<figure><button aria-label="放大图片：工作台中的资源策略、任务容量与模型发布审核。" class="zoom-image" type="button"><img alt="工作台中的资源策略、任务容量与模型发布审核。" src="blog-ml-agent-assets/ui-governance.png"/></button><figcaption>图7　平台统一管理运行策略与模型发布审核，为质量分析提供持续的运维支持。</figcaption></figure>
+
+<h3>配套资料</h3>
+<p><a download="" href="blog-ml-agent-dataset.zip">下载示例数据与字段说明（ZIP）</a>：包含模拟装配记录、下线测试标签、字段解释和预测结果，帮助团队理解建模所需的数据结构。</p>
+<p><a download="" href="blog-ml-agent-test-dataset.zip">下载模型评估示例数据（ZIP）</a>：提供用于评估预测效果的示例数据，方便数据人员进一步了解模型评估方法。</p>
+<p><a href="blog-ml-agent-practice-guide.html">查看部署与操作指南</a>：面向实施团队，介绍工具接入、环境配置和主要操作流程。需要了解示例计算细节的读者，可继续查看<a href="blog-ml-agent-validation.html">数据与结果说明</a>。</p>
+<h3>扩展到新的分析任务</h3>
+<p>将方案用于其他质量问题时，首先确定预测对象、目标、可用数据和结果对应的业务动作。如果仍属于表格数据的分类或回归任务，可以复用 AutoGluon 工具，并调整数据准备及业务 Skill。</p>
+<p>如果需要新增数据源、计算框架或输出方式，则扩展相应工具，并更新 Gateway 与 Agent 配置。将结果接入工单或生产系统时，还应明确重复请求、调用失败和结果回传的处理方式。</p>
+<p>业务场景可以变化，任务查询、模型记录、访问控制和发布管理等平台能力可以持续复用。这使企业能够在已有平台上逐步扩大质量分析范围。</p>
+<h2 id="section-6">结语</h2>
+<p>基于 Amazon Bedrock AgentCore 和 Amazon SageMaker AI，企业可以将质量分析中的业务对话、AutoGluon 建模和模型服务连接起来。工程师通过 Agent 提出要求和跟进结果，MCP 工具执行具体操作，业务 Skill 指导流程，平台承担权限、任务和资源管理。</p>
+<p>装配质量场景体现了这套方案的落地方式：用历史装配记录训练模型，在首次下线测试前生成风险分数，再将结果交给质量团队安排检查。中国区域同样可以采用这一架构，结合本地部署环境选择基础模型并配置相关服务。企业可从一个明确场景开始，再将成熟的数据处理、工具和业务流程推广到更多任务。</p>
+<p>系列第二篇将进一步介绍如何编写业务 Skill，让 Agent 理解质量团队的要求，并按约定流程调用建模工具。</p>
+<h2 id="section-7">附录A ML 工具清单</h2>
+<p>以下工具由项目的 ML 服务实现，通过 Gateway 的 MCP 接口提供给配置了相应权限和工具集合的 Agent。训练、评估和预测工具封装 AutoGluon 计算，其余操作提供数据处理、任务管理和运行支撑。名称省略统一的 <code>ml___</code> 前缀。</p>
+<details class="tool-catalog" data-catalog="ml"><summary>ML 工具清单与职责（24项）</summary><div aria-label="对照表，可横向滚动" class="table-wrap" role="region" tabindex="0"><table>
+<thead>
+<tr>
+<th scope="col">模块</th>
+<th scope="col">ML 工具</th>
+<th scope="col">作用</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>数据与特征</td>
+<td><code>inspect_dataset</code></td>
+<td>检查 CSV 字段、缺失值、数据类型、标签分布和文件哈希</td>
+</tr>
+<tr>
+<td>数据与特征</td>
+<td><code>auto_feature_engineer</code></td>
+<td>按配置保存特征处理步骤，供训练和预测使用相同流程</td>
+</tr>
+<tr>
+<td>训练管理</td>
+<td><code>train_model</code></td>
+<td>提交后台 SageMaker 训练，返回供后续查询的任务和模型编号</td>
+</tr>
+<tr>
+<td>训练管理</td>
+<td><code>get_training_status</code></td>
+<td>核对训练状态、模型文件及登记状态，确认模型是否可用</td>
+</tr>
+<tr>
+<td>训练管理</td>
+<td><code>list_training_jobs</code></td>
+<td>分页查询训练记录，找回中断会话中的任务编号</td>
+</tr>
+<tr>
+<td>训练管理</td>
+<td><code>cancel_training</code></td>
+<td>请求停止训练，并区分取消请求与已确认停止</td>
+</tr>
+<tr>
+<td>训练管理</td>
+<td><code>get_training_logs</code></td>
+<td>查询近期训练日志，辅助定位执行异常</td>
+</tr>
+<tr>
+<td>模型登记</td>
+<td><code>get_model_info</code></td>
+<td>查询模型配置、模型文件、评估、特征分析及已部署服务</td>
+</tr>
+<tr>
+<td>模型登记</td>
+<td><code>repair_model_registration</code></td>
+<td>读取已有模型文件中的清单，恢复模型登记信息</td>
+</tr>
+<tr>
+<td>模型登记</td>
+<td><code>list_models</code></td>
+<td>分页查询模型列表</td>
+</tr>
+<tr>
+<td>评估与迭代</td>
+<td><code>evaluate_model</code></td>
+<td>在指定验证集或测试集上评估模型，保存指标与数据来源</td>
+</tr>
+<tr>
+<td>评估与迭代</td>
+<td><code>feature_importance</code></td>
+<td>打乱验证数据中的字段值，观察模型表现变化，评估字段的重要性</td>
+</tr>
+<tr>
+<td>评估与迭代</td>
+<td><code>compare_models</code></td>
+<td>比较任务类型、指标和外部验证数据相同的已登记模型</td>
+</tr>
+<tr>
+<td>评估与迭代</td>
+<td><code>suggest_next_experiment</code></td>
+<td>根据同一标准下的验证结果，建议继续实验或停止改进</td>
+</tr>
+<tr>
+<td>预测服务</td>
+<td><code>predict</code></td>
+<td>对 CSV 执行离线预测，将结果和可选概率写入 S3</td>
+</tr>
+<tr>
+<td>预测服务</td>
+<td><code>deploy_model</code></td>
+<td>为已登记模型创建或恢复在线端点，校验容量及发布条件</td>
+</tr>
+<tr>
+<td>预测服务</td>
+<td><code>get_endpoint_status</code></td>
+<td>查询端点能否使用，以及回收后是否还留有配置或服务模型</td>
+</tr>
+<tr>
+<td>预测服务</td>
+<td><code>invoke_endpoint</code></td>
+<td>调用已就绪的在线端点，核对响应格式和预测行数</td>
+</tr>
+<tr>
+<td>预测服务</td>
+<td><code>delete_endpoint</code></td>
+<td>删除所属端点、配置和服务模型，并确认回收完成</td>
+</tr>
+<tr>
+<td>运行治理</td>
+<td><code>get_ml_overview</code></td>
+<td>汇总当前页中的训练、模型和端点</td>
+</tr>
+<tr>
+<td>运行治理</td>
+<td><code>get_ml_activity</code></td>
+<td>查询操作结果、错误和关联资源</td>
+</tr>
+<tr>
+<td>运行治理</td>
+<td><code>get_training_metrics</code></td>
+<td>查询 CloudWatch 记录的训练 CPU、内存与磁盘用量</td>
+</tr>
+<tr>
+<td>运行治理</td>
+<td><code>get_endpoint_metrics</code></td>
+<td>查询调用量、错误和 p95 模型处理时延（95%的请求不超过该值）</td>
+</tr>
+<tr>
+<td>运行治理</td>
+<td><code>get_ml_policy</code></td>
+<td>查询工作区权限、可用实例、运行时长、资源限额和发布要求</td>
+</tr>
+</tbody>
+</table></div></details>
+<h2 id="section-8">附录B 业务 Skill 清单</h2>
+<p>以下 Skill 是本项目配置的业务流程说明，按需加载，不能替代服务端的权限与资源检查。</p>
+<details class="tool-catalog" data-catalog="skills"><summary>业务 Skill 清单（4项）</summary><div aria-label="对照表，可横向滚动" class="table-wrap" role="region" tabindex="0"><table>
+<thead>
+<tr>
+<th scope="col">Skill</th>
+<th scope="col">作用</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>ml-training-workflow</code></td>
+<td>确认目标、标签、数据划分和预算；提交后台训练；用原请求编号找回任务；说明训练与模型登记状态</td>
+</tr>
+<tr>
+<td><code>ml-model-evaluation</code></td>
+<td>区分验证集与保留测试集；明确指标越大或越小越好；指导模型比较和特征分析；根据验证结果改进模型</td>
+</tr>
+<tr>
+<td><code>ml-run-observability</code></td>
+<td>查询任务进展、日志、资源用量和操作记录；区分请求已受理与任务已完成；根据错误记录排查问题</td>
+</tr>
+<tr>
+<td><code>ml-serving-lifecycle</code></td>
+<td>根据需求选择离线预测或在线服务；遵守发布审批与验证有效期；检查在线响应并确认资源回收</td>
+</tr>
+</tbody>
+</table></div></details>
+<h2 id="section-9">附录C Agent 辅助工具</h2>
+<p>以下工具由本项目的 Agent 应用与插件装配，服务于日期、会话文件与 Skill 读取。</p>
+<details class="tool-catalog" data-catalog="runtime"><summary>Agent 应用辅助工具（7项）</summary><div aria-label="对照表，可横向滚动" class="table-wrap" role="region" tabindex="0"><table>
+<thead>
+<tr>
+<th scope="col">通用工具</th>
+<th scope="col">作用</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>current_date</code></td>
+<td>获取当前日期和星期，辅助理解相对日期</td>
+</tr>
+<tr>
+<td><code>list_dir</code></td>
+<td>列出当前会话工作区中的文件</td>
+</tr>
+<tr>
+<td><code>read_file</code></td>
+<td>读取工作区文件</td>
+</tr>
+<tr>
+<td><code>write_file</code></td>
+<td>在工作区创建或写入文件</td>
+</tr>
+<tr>
+<td><code>edit_file</code></td>
+<td>修改工作区中的已有文件</td>
+</tr>
+<tr>
+<td><code>skills</code></td>
+<td>按需加载某项业务 Skill 的完整说明</td>
+</tr>
+<tr>
+<td><code>read_skill_files</code></td>
+<td>读取已加载 Skill 随附的参考资料或资源文件</td>
+</tr>
+</tbody>
+</table></div></details>
+<hr/>
+<p>参考资料：</p>
+<ol>
+<li>AutoGluon，Tabular Quick Start。<br/>
+<a href="https://auto.gluon.ai/stable/tutorials/tabular/tabular-quick-start.html">https://auto.gluon.ai/stable/tutorials/tabular/tabular-quick-start.html</a></li>
+<li>Strands Agents Python SDK。<br/>
+<a href="https://github.com/strands-agents/sdk-python">https://github.com/strands-agents/sdk-python</a></li>
+<li>Amazon Bedrock AgentCore Runtime。<br/>
+<a href="https://docs.aws.amazon.com/bedrock-agentcore/latest/devguide/agents-tools-runtime.html">https://docs.aws.amazon.com/bedrock-agentcore/latest/devguide/agents-tools-runtime.html</a></li>
+<li>Amazon Bedrock AgentCore Gateway；AWS Lambda function targets。<br/>
+<a href="https://docs.aws.amazon.com/bedrock-agentcore/latest/devguide/gateway.html">https://docs.aws.amazon.com/bedrock-agentcore/latest/devguide/gateway.html</a><br/>
+<a href="https://docs.aws.amazon.com/bedrock-agentcore/latest/devguide/gateway-using.html">https://docs.aws.amazon.com/bedrock-agentcore/latest/devguide/gateway-using.html</a><br/>
+<a href="https://docs.aws.amazon.com/bedrock-agentcore/latest/devguide/gateway-add-target-lambda.html">https://docs.aws.amazon.com/bedrock-agentcore/latest/devguide/gateway-add-target-lambda.html</a><br/>
+<a href="https://docs.aws.amazon.com/bedrock-agentcore/latest/devguide/gateway-tool-naming.html">https://docs.aws.amazon.com/bedrock-agentcore/latest/devguide/gateway-tool-naming.html</a></li>
+<li>Amazon SageMaker Training。<br/>
+<a href="https://docs.aws.amazon.com/sagemaker/latest/dg/how-it-works-training.html">https://docs.aws.amazon.com/sagemaker/latest/dg/how-it-works-training.html</a></li>
+<li>Microsoft identity platform，OpenID Connect。<br/>
+<a href="https://learn.microsoft.com/en-us/entra/identity-platform/v2-protocols-oidc">https://learn.microsoft.com/en-us/entra/identity-platform/v2-protocols-oidc</a></li>
+<li>Model Context Protocol，Tools。<br/>
+<a href="https://modelcontextprotocol.io/specification/2025-11-25/server/tools">https://modelcontextprotocol.io/specification/2025-11-25/server/tools</a></li>
+<li>AutoGluon v1.5.0，主要预测接口。<br/>
+<a href="https://github.com/autogluon/autogluon/blob/v1.5.0/README.md">https://github.com/autogluon/autogluon/blob/v1.5.0/README.md</a></li>
+<li>Amazon Bedrock AgentCore Memory。<br/>
+<a href="https://docs.aws.amazon.com/bedrock-agentcore/latest/devguide/memory.html">https://docs.aws.amazon.com/bedrock-agentcore/latest/devguide/memory.html</a></li>
+<li>AWS Well-Architected Framework。<br/>
+<a href="https://docs.aws.amazon.com/wellarchitected/latest/framework/welcome.html">https://docs.aws.amazon.com/wellarchitected/latest/framework/welcome.html</a></li>
+<li>Amazon SageMaker AI，Processing 与 Batch Transform。<br/>
+<a href="https://docs.aws.amazon.com/sagemaker/latest/dg/processing-job.html">https://docs.aws.amazon.com/sagemaker/latest/dg/processing-job.html</a><br/>
+<a href="https://docs.aws.amazon.com/sagemaker/latest/dg/batch-transform.html">https://docs.aws.amazon.com/sagemaker/latest/dg/batch-transform.html</a></li>
+<li>Amazon Bedrock AgentCore Pricing。<br/>
+<a href="https://aws.amazon.com/bedrock/agentcore/pricing/">https://aws.amazon.com/bedrock/agentcore/pricing/</a></li>
+<li>Amazon SageMaker AI Pricing。<br/>
+<a href="https://aws.amazon.com/sagemaker/ai/pricing/">https://aws.amazon.com/sagemaker/ai/pricing/</a></li>
+<li>亚马逊云科技中国区域，AgentCore 服务差异及区域服务列表。<br/>
+<a href="https://docs.amazonaws.cn/en_us/aws/latest/userguide/bedrock-agentcore.html">https://docs.amazonaws.cn/en_us/aws/latest/userguide/bedrock-agentcore.html</a><br/>
+<a href="https://www.amazonaws.cn/en/about-aws/regional-product-services/">https://www.amazonaws.cn/en/about-aws/regional-product-services/</a><br/>
+<a href="https://www.amazonaws.cn/en/agentcore/pricing/">https://www.amazonaws.cn/en/agentcore/pricing/</a></li>
+</ol>
+</article></main>
+<footer>图片支持放大 · 示例数据与部署指南随文提供</footer>
+<dialog id="viewer" aria-label="放大查看文章配图"><button type="button" class="close" aria-label="关闭图片">关闭 ×</button><img alt=""></dialog>
+<script>
+const viewer=document.getElementById('viewer'), enlarged=viewer.querySelector('img');
+document.querySelectorAll('.zoom-image').forEach(button=>button.addEventListener('click',()=>{
+ const image=button.querySelector('img');enlarged.src=image.src;enlarged.alt=image.alt;viewer.showModal();viewer.scrollTop=0;
+}));
+viewer.querySelector('.close').addEventListener('click',()=>viewer.close());
+viewer.addEventListener('click',event=>{if(event.target===viewer)viewer.close()});
+const workflowVideo=document.querySelector('.workflow-video video');
+document.querySelectorAll('[data-seek]').forEach(button=>button.addEventListener('click',()=>{
+ workflowVideo.currentTime=Number(button.dataset.seek);
+ workflowVideo.play().catch(()=>{});
+}));
+</script></body></html>

@@ -1,0 +1,123 @@
+<!doctype html>
+<html lang="zh-CN"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="description" content="构建可查询、可恢复和可追溯的装配质量分析工作流，介绍 Amazon Bedrock AgentCore 与 Amazon SageMaker AI 的架构、工具接入、模型验证和运维实践。">
+<title>装配质量分析 Agent 实践指南</title><style>
+:root{--ink:#20252b;--muted:#636b74;--paper:#ffffff;--line:#dfe2e5;--accent:#3b5268}
+*{box-sizing:border-box}html{scroll-behavior:smooth;scroll-padding-top:35px}body{margin:0;background:var(--paper);color:var(--ink);font-family:"PingFang SC","Noto Sans CJK SC",sans-serif;font-size:17px;line-height:1.95}
+a{color:#155e74;text-underline-offset:4px}button{font:inherit}
+.masthead{max-width:1100px;margin:auto;padding:26px 0 18px;border-bottom:1px solid var(--line);display:flex;justify-content:space-between;gap:30px;font-size:12px}
+.masthead b{font-weight:600}.masthead span{color:var(--muted)}
+.hero{max-width:1100px;margin:0 auto;padding:34px 0 24px}
+h1{font-family:"Songti SC","Noto Serif CJK SC",serif;font-size:clamp(28px,3vw,38px);font-weight:600;line-height:1.55;max-width:1100px;margin:0;text-wrap:balance}
+.layout{max-width:1100px;margin:auto;display:grid;grid-template-columns:180px minmax(0,870px);gap:50px;align-items:start}
+nav{position:sticky;top:35px;font-size:13px;padding-top:4px;line-height:1.7}nav b{display:block;font-size:12px;color:var(--muted);letter-spacing:.1em;margin-bottom:22px}
+nav a{display:block;padding:11px 0;color:var(--muted);text-decoration:none;border-top:1px solid var(--line)}
+nav a:hover{color:var(--accent)}nav span{display:block;font:11px "Avenir Next",sans-serif;color:#819399;margin-bottom:5px}
+article{min-width:0}article>p:first-child{font-size:14px;color:var(--muted);margin-top:0}
+p{margin:0 0 20px}strong{font-weight:600}h2{font-family:"Songti SC",serif;font-size:27px;line-height:1.5;margin:42px 0 21px;padding-top:22px;border-top:1px solid var(--line)}
+h3{font-size:20px;font-weight:600;margin:30px 0 15px;line-height:1.5;color:var(--ink)}
+h4{font-size:17px;font-weight:600;margin:24px 0 12px;line-height:1.7;color:var(--ink)}
+figure{margin:32px -18px 37px}figure img{display:block;width:100%;height:auto;background:white;border:1px solid var(--line)}
+figure img[src$="quality-workflow.png"]{max-width:650px;margin:auto}
+.zoom-image{padding:0;border:0;background:transparent;display:block;width:100%;cursor:zoom-in}
+.zoom-image:focus-visible{outline:3px solid var(--accent);outline-offset:6px}
+figcaption{font-size:13px;line-height:1.85;color:var(--muted);padding:13px 18px 0}
+.workflow-video{background:#f7f8f9;border:1px solid var(--line);padding-bottom:12px}
+.workflow-video video{display:block;width:100%;height:auto;aspect-ratio:8/5;background:#15242f}
+.video-chapters{display:flex;flex-wrap:wrap;gap:7px;padding:12px 18px 0}
+.video-chapters button{font-size:12px;line-height:1.5;background:white;color:#284956;border:1px solid #c5d3d6;padding:6px 10px;border-radius:3px;cursor:pointer}
+.video-chapters button:hover,.video-chapters button:focus-visible{border-color:var(--accent);color:var(--accent)}
+.table-wrap{overflow-x:auto;margin:27px 0 30px;border-top:1px solid #9da6ae;border-bottom:1px solid var(--line)}
+.tool-catalog{margin:22px 0 28px;border-top:1px solid var(--line);border-bottom:1px solid var(--line)}
+.tool-catalog summary{cursor:pointer;font-size:15px;font-weight:600;padding:14px 8px;line-height:1.65}
+.tool-catalog summary:focus-visible{outline:2px solid var(--accent);outline-offset:3px}
+.tool-catalog .table-wrap{margin:0;border-bottom:0}
+.tool-catalog[data-catalog="ml"] table{min-width:690px}
+.tool-catalog[data-catalog="runtime"] table{min-width:430px}
+table{width:100%;border-collapse:collapse;font-size:14px;line-height:1.7}th,td{padding:13px 14px;text-align:left;border-bottom:1px solid var(--line);min-width:100px}
+thead{background:#f5f6f7}th{font-weight:600}tr:last-child td{border-bottom:0}
+code{font-family:Menlo,monospace;font-size:12px;overflow-wrap:anywhere}ol{padding-left:24px}li{margin:14px 0}
+hr{border:0;border-top:1px solid var(--line);margin:55px 0 30px}
+footer{max-width:1100px;margin:40px auto 0;padding:24px 0 36px;border-top:1px solid var(--line);font-size:12px;color:var(--muted)}
+dialog{border:0;border-radius:6px;padding:56px 24px 24px;max-width:96vw;max-height:96vh;width:1600px;background:#f8faf9;color:var(--ink)}
+dialog::backdrop{background:#142d40df}dialog img{display:block;max-width:100%;height:auto;margin:auto}
+.close{position:absolute;right:20px;top:12px;border:1px solid #aac0c7;border-radius:5px;background:white;padding:4px 14px;cursor:pointer}
+@media(max-width:1250px){.hero,.layout,footer{margin-left:40px;margin-right:40px}.layout{grid-template-columns:175px minmax(0,1fr);gap:40px}.masthead{padding-left:40px;padding-right:40px}}
+@media(max-width:850px){.masthead{padding:24px}.masthead span{display:none}.hero{margin:0;padding:38px 24px 27px}.deck{font-size:17px}.layout{display:block;margin:0 24px}nav{position:static;border-bottom:1px solid var(--line);margin-bottom:34px;padding-bottom:20px;display:none}h2{font-size:27px;margin-top:45px}h3{font-size:21px}figure{margin:28px -10px}figcaption{padding-left:10px;padding-right:10px}footer{margin:42px 24px 0}body{font-size:16px}.table-wrap{margin-left:0;margin-right:0}dialog{padding:48px 8px 10px}}
+@media print{nav,.masthead span,.close{display:none}.masthead,.hero,.layout,footer{margin:0;padding:15px 0}.layout{display:block}h1{font-size:30px}body{font-size:11px}h2{font-size:21px;break-after:avoid}h3{font-size:16px;break-after:avoid}figure{margin:18px 0;break-inside:avoid}figcaption{font-size:10px}table{font-size:10px}a{color:inherit}button{cursor:default}}
+
+.resource-links{display:flex;flex-wrap:wrap;gap:18px;font-size:13px;margin-top:18px}.resource-links a{white-space:nowrap}pre{overflow:auto;padding:16px;background:#f7f8f9;border:1px solid var(--line);line-height:1.6}pre code{white-space:pre;overflow-wrap:normal}article a{overflow-wrap:anywhere}article>h2[id^="section-"]{scroll-margin-top:25px}.masthead a{font-size:12px}.table-wrap table{min-width:600px}.tool-catalog{scroll-margin-top:20px}
+.table-wrap .model-summary{min-width:0;table-layout:fixed}.model-summary th,.model-summary td{min-width:0;overflow-wrap:anywhere}.model-summary th:first-child,.model-summary td:first-child{width:23%}
+@media(max-width:850px){.model-summary th:first-child,.model-summary td:first-child{width:6.5em}}
+</style></head><body>
+<header class="masthead"><b>实践指南</b><span>配套实践资料</span></header>
+<section class="hero"><h1>装配质量分析 Agent 实践指南</h1><div class="resource-links"><a href="blog-ml-agent-final.html">返回方案文章</a><a href="blog-ml-agent-paper.docx">Word 文档</a><a href="blog-ml-agent-dataset.zip" download>示例数据（ZIP）</a><a href="blog-ml-agent-test-dataset.zip" download>评估数据（ZIP）</a><a href="blog-ml-agent-practice-guide.html">部署与操作指南</a><a href="blog-ml-agent-validation.html">数据与结果说明</a></div></section>
+<main class="layout"><nav aria-label="文章目录"><b>本文内容</b><a href="#section-1"><span>01</span>本地复算</a><a href="#section-2"><span>02</span>运行环境准备</a><a href="#section-3"><span>03</span>在已配置平台中运行样例</a><a href="#section-4"><span>04</span>试点记录</a><a href="#section-5"><span>05</span>配套资料</a></nav><article>
+<p>本指南配合方案文章使用，提供本地复算和已有 AWS 平台中的操作步骤。资料包包含示例数据、保存的预测、文章与配图；完整平台源码和部署包需另行获取。</p>
+<h2 id="section-1">本地复算</h2>
+<p>只希望查看测试数据的读者，可下载<a download="" href="blog-ml-agent-test-dataset.zip">测试集与说明包</a>。其中 <code>data/test.csv</code> 为1600条有标签测试样本，包含14个特征和1个标签；<code>data/test-arrivals-*.csv</code> 为1660台完整到达队列，另含60台未知结果对象。包内 README 说明数据来源、字段、时间划分与两种测试口径，并提供原实验保存的预测和复算脚本。</p>
+<p>解压 <code>blog-ml-agent-dataset.zip</code>，进入生成的 <code>blog-ml-agent-dataset</code> 目录。请保留原文件，使用 Python 3.11 或更高版本运行以下命令。</p>
+<pre><code class="language-bash">python3 scripts/verify_package.py
+python3 scripts/replay_policy.py
+</code></pre>
+<p>两个脚本都使用 Python 标准库，不需要安装 AutoGluon、访问 AWS 或配置凭据。前者核对包内文件哈希，后者读取已保存的预测与固定策略进行复算。复算时不要重新生成输入文件，也不要将新模型的预测混入原结果。</p>
+<p>原始输入包括 <code>data/train.csv</code>、<code>data/validation.csv</code> 和 <code>data/test.csv</code>，分别包含4800、1600和1600条有标签记录。模型根据装配记录预测首次下线测试通过或不通过，并输出不通过的风险分数。<code>test-arrivals-features.csv</code> 及对应的 <code>test-arrivals-index.csv</code> 包含测试期全部1660台发动机，用于回放建议人工检查清单的筛选过程。清单列明发动机编号及风险分数，现场检查由人员实施。特征与索引文件逐行对应，不应分别排序。</p>
+<p>预期筛选结果为：模型策略将146台发动机列入建议人工检查清单，扭矩规则筛选143台；两种方法均覆盖22台已知首次失败，对83台已知失败的覆盖率均为26.5%。模型清单另含3台结果未知的发动机。这些数字来自模拟数据的筛选回放，不表示已在现场完成相应数量的人工检查。字段、标签及数据生成方法见数据包中的 <code>README.md</code> 和 <code>data-dictionary.csv</code>。</p>
+<h2 id="section-2">运行环境准备</h2>
+<p>AgentCore Runtime 与 Gateway 已支持中国北京和宁夏区域。中国区域部署可保留本文的 MCP 工具接入和 SageMaker AI 计算架构，使用当地账户、服务端点、数据存储和容器镜像，并配置可在目标环境访问且支持工具调用的基础模型服务。</p>
+<p>中国区域目前不提供 AgentCore Memory；会话历史和任务记录可保存在 DynamoDB，跨会话历史检索按应用需求实现。Gateway 入站访问应使用 AWS IAM 或符合 OIDC 标准的身份提供方。具体差异见<a href="https://docs.amazonaws.cn/en_us/aws/latest/userguide/bedrock-agentcore.html">中国区域 AgentCore 官方说明</a>。</p>
+<p>配套计算记录使用 <code>us-east-1</code> 和 AutoGluon 1.5.0。实施团队应按选定区域确认实例配额、训练及推理镜像，并记录模型与镜像版本。</p>
+<p>完整部署依赖主平台和 ML 模块的匹配版本。获得源码后，主项目的 <code>docs/installation.md</code> 是平台安装入口，<code>ml-agent-lambda/README.md</code> 说明 ML 模块构建、配置及协同上线。主安装入口为 <code>scripts/install.sh</code>；ML 模块的 <code>deploy.sh --prepare</code> 仅准备本地材料，不等于完整部署。新环境须按两份说明完成接入和独立验收。</p>
+<p>平台侧需要门户、Agent Runtime、Gateway、会话存储及身份配置。ML 模块需要输入与模型存储、状态表、登记表、授权密钥、训练和推理角色、工具 Lambda，以及任务和端点状态核对机制。主平台安装完成后，还需连接 ML 模块、配置 Gateway 的 <code>ml</code> 目标，并向 Agent 挂载工具和业务 Skill。</p>
+<p>主要配置包括 <code>ML_AGENT_BUCKET</code>、<code>JOBS_TABLE</code>、<code>MODEL_REGISTRY_TABLE</code>、<code>SAGEMAKER_ROLE_ARN</code>、<code>SAGEMAKER_SERVING_ROLE_ARN</code>、<code>TRAINING_SCRIPT_URI</code>、<code>ML_WORKSPACE_ID</code>、<code>ML_CONTEXT_KEY_ARN</code> 和 <code>ML_AUTH_MODE=required</code>。门户与 Runtime 使用一致的工作区和可信授权配置。部署者应根据实际账户设置这些值，并核对目标资源及权限。</p>
+<p>Gateway 使用发布工具生成的 <code>gateway-tool-schema.json</code>；工具 Lambda 使用本地完整参数定义执行严格校验。将函数注册为 <code>ml</code> target 后，确认 <code>tools/list</code> 返回预期工具，Agent 配置包含正文附录中的 ML 工具和业务 Skill。</p>
+<p>本项目的业务审核、签名授权、模型登记及临时资源回收均需要对应模块配置生效。当前 ML 工作台仅对平台管理员开放。Microsoft Entra ID 是企业接入设计，需另行完成应用注册、OIDC 配置、用户映射和端到端登录验证。</p>
+<h2 id="section-3">在已配置平台中运行样例</h2>
+<h3>上传数据并核对策略</h3>
+<p>将数据上传到为本工作区配置的 S3 桶和前缀，保留训练、验证与测试文件的区分。记录实际地址、文件哈希和标签 <code>first_eol_fail</code>，不要使用本文中未提供的示例账户或资源标识。</p>
+<p>先查询 <code>get_ml_policy</code>，确认允许的实例、训练时长、并发和端点限制。由数据人员核对发动机标识、字段含义、时间与标签，再调用 <code>inspect_dataset</code> 检查文件结构和标签分布。</p>
+<h3>提交训练</h3>
+<p>在聊天中提供训练文件地址、标签、资源要求及验证文件地址。每次新的实验生成一个 <code>request_id</code>；因网络问题重试原实验时，复用相同编号和配置。</p>
+<p><code>train_model</code> 使用 <code>s3_path</code>、<code>label</code>、<code>request_id</code>、<code>time_limit</code>、<code>presets</code> 等参数。训练时长参数表示拟合预算。下列 JSON 仅展示业务参数格式，其中数据地址和请求编号必须替换为实际值；授权信息由可信门户或 Runtime 附加。</p>
+<pre><code class="language-json">{
+  "s3_path": "s3://YOUR_CONFIGURED_BUCKET/quality/train.csv",
+  "label": "first_eol_fail",
+  "request_id": "YOUR_NEW_EXPERIMENT_ID",
+  "time_limit": 120,
+  "presets": "medium_quality",
+  "instance_type": "ml.m5.xlarge",
+  "use_spot": false
+}
+</code></pre>
+<p>实例必须在工作区允许列表中并具备配额。调用成功后保存实际返回的任务与模型编号，使用 <code>get_training_status</code> 查询，直到作业和模型登记均完成。训练结束但登记失败时，应处理原记录，不能把提交成功当作模型已可用。</p>
+<h3>评估与预测</h3>
+<p>用 <code>evaluate_model</code> 指定 <code>test_s3_path</code>，并设置 <code>dataset_role=validation</code> 完成外部验证。确定模型与策略后，再对保留测试集使用 <code>dataset_role=test</code>。比较模型时，保持目标、指标与外部验证数据一致。</p>
+<p><code>predict</code> 使用实际 <code>model_id</code>、<code>data_s3_path</code>，必要时设置 <code>include_probabilities=true</code>。人工检查清单的筛选回放需要完整到达队列及其索引，不能用只包含已知标签的 <code>test.csv</code> 代替。新的训练可能产生不同预测，应单独保存为新实验。</p>
+<p>需要在线验证时，再创建 <code>purpose=validation</code> 的临时端点。等待端点可用后，用预先确定的样本调用 <code>invoke_endpoint</code>，与同一模型的离线输出比较。记录响应、模型版本和时间，不将一次调用解释为性能压测。</p>
+<h3>清理与保留</h3>
+<p>验证完成后，通过项目的 <code>delete_endpoint</code> 清理所属端点、端点配置和服务模型，并查询确认 <code>cleanup_complete=true</code>。若还有训练任务运行，根据任务用途决定保留或停止，停止请求需等待后台确认。</p>
+<p>临时端点回收不代表整个方案不再计费。存储、日志、备份及保留的平台资源仍需按用途管理。删除模型或实验输入前，先确认是否需要保留用于复查与审核；完整环境拆除应遵循相应基础设施栈的保留策略。</p>
+<h2 id="section-4">试点记录</h2>
+<p>为每次验证记录基础模型、Agent 配置、工具和 Skill 版本、容器镜像、输入哈希、资源参数及任务编号。统计任务完成率时，保留全部任务和失败记录，并预先定义成功条件。</p>
+<p>质量侧分别记录清单筛选数量、实际人工检查数量、发现的问题、采取的措施和后续测试结果。平台侧记录到可审查结果的耗时、人工介入、重复提交、错误恢复、端点回收和实际费用。可以先生成清单进行影子运行，再根据业务批准开展有限范围的现场人工检查。</p>
+<h2 id="section-5">配套资料</h2>
+<p><a href="blog-ml-agent-final.html">返回方案文章</a></p>
+<p><a download="" href="blog-ml-agent-dataset.zip">完整示例数据</a></p>
+<p><a download="" href="blog-ml-agent-test-dataset.zip">测试集与说明</a></p>
+<p><a href="blog-ml-agent-validation.html">详细实验记录</a></p>
+</article></main>
+<footer>图片支持放大 · 示例数据与部署指南随文提供</footer>
+<dialog id="viewer" aria-label="放大查看文章配图"><button type="button" class="close" aria-label="关闭图片">关闭 ×</button><img alt=""></dialog>
+<script>
+const viewer=document.getElementById('viewer'), enlarged=viewer.querySelector('img');
+document.querySelectorAll('.zoom-image').forEach(button=>button.addEventListener('click',()=>{
+ const image=button.querySelector('img');enlarged.src=image.src;enlarged.alt=image.alt;viewer.showModal();viewer.scrollTop=0;
+}));
+viewer.querySelector('.close').addEventListener('click',()=>viewer.close());
+viewer.addEventListener('click',event=>{if(event.target===viewer)viewer.close()});
+const workflowVideo=document.querySelector('.workflow-video video');
+document.querySelectorAll('[data-seek]').forEach(button=>button.addEventListener('click',()=>{
+ workflowVideo.currentTime=Number(button.dataset.seek);
+ workflowVideo.play().catch(()=>{});
+}));
+</script></body></html>

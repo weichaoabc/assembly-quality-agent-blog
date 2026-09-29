@@ -1,0 +1,24 @@
+digraph EvaluationTraceability {
+  graph [rankdir=TB, bgcolor="white", fontname="Arial Unicode MS", fontsize=16,
+         nodesep=0.52, ranksep=0.62, pad=0.25, splines=ortho, outputorder=edgesfirst];
+  node [shape=box, style=filled, fillcolor=white, color="#30363b", penwidth=1.15,
+        fontname="Arial Unicode MS", fontsize=16, margin="0.18,0.12", width=2.75, height=0.86];
+  edge [color="#454c52", penwidth=1.10, arrowsize=0.70];
+
+  model [shape=cylinder, label="已登记模型\n模型编号 / 固定产物版本\n保存的特征处理步骤", width=3.40];
+  data [shape=cylinder, label="评估输入\n验证集或保留测试集\n数据角色 / 文件指纹", width=3.40];
+  evaluate [label="evaluate_model\n按保存的步骤处理原始特征\n计算并保存评估结果", width=3.70, height=1.0];
+  record [shape=cylinder, label="评估记录\n关联模型与数据\n保存指标、口径与时间", width=3.70, height=1.0];
+  workbench [label="工作台查看\n完整指标与混淆矩阵\n数据和模型来源", width=2.90];
+  agent [label="Agent 查询与解释\n读取同一份结果\n回答工程师的追问", width=2.90];
+  compare [label="compare_models\n检查目标、任务和指标\n匹配外部验证数据指纹", width=3.15];
+
+  { rank=same; model; data; }
+  { rank=same; workbench; agent; compare; }
+  model -> evaluate;
+  data -> evaluate;
+  evaluate -> record;
+  record -> workbench;
+  record -> agent;
+  record -> compare;
+}

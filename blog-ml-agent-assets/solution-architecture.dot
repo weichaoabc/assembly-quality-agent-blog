@@ -1,0 +1,38 @@
+digraph MLArchitecture {
+  graph [rankdir=TB, bgcolor="white", fontname="Arial Unicode MS", fontsize=17,
+    nodesep=0.42, ranksep=0.8, pad=0.28, splines=ortho, outputorder=edgesfirst];
+  node [shape=box, style="filled", fillcolor="white", color="#30363b", penwidth=1.2,
+    fontname="Arial Unicode MS", fontsize=17, margin="0.18,0.14", width=2.8, height=0.72];
+  edge [color="#454c52", penwidth=1.1, arrowsize=0.7,
+    fontname="Arial Unicode MS", fontsize=12, fontcolor="#30363b"];
+  user [shape=ellipse, label="质量工程师\n提出要求 / 查看结果", group=main];
+  agent [label="Agent · Strands\n理解要求 / 选择工具 / 解释返回\n运行于 AgentCore Runtime", group=main, width=4.2];
+  skill [label="业务 Skill\n数据与资源确认\n训练 / 评估 / 预测步骤", group=right, width=2.7];
+  bedrock [label="基础模型服务\n按部署区域选择", group=left, width=2.6];
+  gateway [label="AgentCore Gateway\nMCP 工具发现与调用\ntools/list · tools/call", group=main, width=3.5];
+  schema [shape=cylinder, label="工具定义（S3）\n名称 / 用途 / 输入参数", group=right, width=2.8];
+  tools [label="Agent 可调用的 ML 工具\ntrain_model · get_training_status\nevaluate_model · predict · invoke_endpoint\n项目工具实现：Lambda", group=main, width=5.6, height=1.35, penwidth=1.7];
+  train [label="训练与状态查询\ntrain_model / get_training_status\nAutoGluon 训练\nSageMaker Training Job", group=left, width=3.3];
+  evaluate [label="同步评估与离线预测\nevaluate_model / predict\nAutoGluon 评估与预测\n同一 Lambda 内执行", group=main, width=3.15];
+  endpoint [label="在线预测\ninvoke_endpoint\nAutoGluon 在线推理\nSageMaker Endpoint", group=right, width=3.0];
+  storage [shape=cylinder, label="Amazon S3\n输入数据 / 模型产物 / 预测文件", group=main, width=4.2];
+  {rank=same; bedrock; agent; skill;}
+  {rank=same; gateway; schema;}
+  {rank=same; train; evaluate; endpoint;}
+  user -> agent [xlabel="业务对话", dir=both, weight=100];
+  bedrock -> agent [dir=both, constraint=false];
+  skill -> agent [constraint=false];
+  agent -> gateway [xlabel="发现 / 调用 / 返回", dir=both, weight=100];
+  schema -> gateway [constraint=false];
+  gateway -> tools [xlabel="传入操作与参数 / 返回结果", dir=both, weight=100];
+  tools -> train [xlabel="提交 / 查询", dir=both];
+  tools -> evaluate [xlabel="函数内计算", dir=both, weight=100];
+  tools -> endpoint [xlabel="调用端点", dir=both];
+  train -> storage [xlabel="数据 / 模型", dir=both];
+  evaluate -> storage [xlabel="数据 / 模型 / 预测", dir=both, weight=100];
+  endpoint -> storage [xlabel="读取模型", dir=back];
+  bedrock -> agent -> skill [style=invis, weight=100];
+  train -> evaluate -> endpoint [style=invis, weight=100];
+  skill -> schema [style=invis, weight=100];
+  bedrock -> train [style=invis, weight=10];
+}

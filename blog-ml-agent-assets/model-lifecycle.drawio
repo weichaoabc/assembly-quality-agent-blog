@@ -1,0 +1,107 @@
+<?xml version='1.0' encoding='utf-8'?>
+<mxfile host="app.diagrams.net" type="device" compressed="false">
+  <diagram id="model-lifecycle" name="模型发布与资源回收流程">
+    <mxGraphModel dx="1400" dy="1600" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="1198" pageHeight="1766" background="#ffffff" math="0" shadow="0">
+      <root>
+        <mxCell id="0" />
+        <mxCell id="1" parent="0" />
+        <mxCell id="trained" value="SageMaker 训练完成" style="shape=rectangle;rounded=0;whiteSpace=wrap;html=0;fillColor=#ffffff;strokeColor=#30363b;strokeWidth=1.4;fontColor=#111111;fontFamily=Arial Unicode MS;fontSize=24;align=center;verticalAlign=middle;spacing=10;shadow=0;" vertex="1" parent="1">
+          <mxGeometry x="268.65" y="30.00" width="307.80" height="75.60" as="geometry" />
+        </mxCell>
+        <mxCell id="registered" value="登记模型并固定产物版本" style="shape=rectangle;rounded=0;whiteSpace=wrap;html=0;fillColor=#ffffff;strokeColor=#30363b;strokeWidth=1.4;fontColor=#111111;fontFamily=Arial Unicode MS;fontSize=24;align=center;verticalAlign=middle;spacing=10;shadow=0;" vertex="1" parent="1">
+          <mxGeometry x="268.65" y="170.10" width="307.80" height="75.60" as="geometry" />
+        </mxCell>
+        <mxCell id="evaluated" value="外部验证与保留测试&#10;保存评估依据" style="shape=rectangle;rounded=0;whiteSpace=wrap;html=0;fillColor=#ffffff;strokeColor=#30363b;strokeWidth=1.4;fontColor=#111111;fontFamily=Arial Unicode MS;fontSize=24;align=center;verticalAlign=middle;spacing=10;shadow=0;" vertex="1" parent="1">
+          <mxGeometry x="268.65" y="310.23" width="307.80" height="91.17" as="geometry" />
+        </mxCell>
+        <mxCell id="purpose" value="服务用途" style="shape=rhombus;whiteSpace=wrap;html=0;fillColor=#ffffff;strokeColor=#30363b;strokeWidth=1.4;fontColor=#111111;fontFamily=Arial Unicode MS;fontSize=24;align=center;verticalAlign=middle;spacing=10;shadow=0;" vertex="1" parent="1">
+          <mxGeometry x="307.70" y="465.90" width="229.69" height="102.60" as="geometry" />
+        </mxCell>
+        <mxCell id="validation" value="创建临时验证端点" style="shape=rectangle;rounded=0;whiteSpace=wrap;html=0;fillColor=#ffffff;strokeColor=#30363b;strokeWidth=1.4;fontColor=#111111;fontFamily=Arial Unicode MS;fontSize=24;align=center;verticalAlign=middle;spacing=10;shadow=0;" vertex="1" parent="1">
+          <mxGeometry x="70.65" y="662.70" width="307.80" height="75.60" as="geometry" />
+        </mxCell>
+        <mxCell id="predict" value="确认 InService&#10;执行预测一致性检查" style="shape=rectangle;rounded=0;whiteSpace=wrap;html=0;fillColor=#ffffff;strokeColor=#30363b;strokeWidth=1.4;fontColor=#111111;fontFamily=Arial Unicode MS;fontSize=24;align=center;verticalAlign=middle;spacing=10;shadow=0;" vertex="1" parent="1">
+          <mxGeometry x="70.65" y="832.50" width="307.80" height="91.17" as="geometry" />
+        </mxCell>
+        <mxCell id="cleanup_trigger" value="到期或申请回收&#10;后台核对资源状态" style="shape=rectangle;rounded=0;whiteSpace=wrap;html=0;fillColor=#ffffff;strokeColor=#30363b;strokeWidth=1.4;fontColor=#111111;fontFamily=Arial Unicode MS;fontSize=24;align=center;verticalAlign=middle;spacing=10;shadow=0;" vertex="1" parent="1">
+          <mxGeometry x="70.65" y="988.17" width="307.80" height="91.17" as="geometry" />
+        </mxCell>
+        <mxCell id="endpoint_delete" value="删除验证端点&#10;确认端点不存在" style="shape=rectangle;rounded=0;whiteSpace=wrap;html=0;fillColor=#ffffff;strokeColor=#30363b;strokeWidth=1.4;fontColor=#111111;fontFamily=Arial Unicode MS;fontSize=24;align=center;verticalAlign=middle;spacing=10;shadow=0;" vertex="1" parent="1">
+          <mxGeometry x="70.65" y="1143.84" width="307.80" height="91.17" as="geometry" />
+        </mxCell>
+        <mxCell id="associated_delete" value="清理所属配置与服务模型" style="shape=rectangle;rounded=0;whiteSpace=wrap;html=0;fillColor=#ffffff;strokeColor=#30363b;strokeWidth=1.4;fontColor=#111111;fontFamily=Arial Unicode MS;fontSize=24;align=center;verticalAlign=middle;spacing=10;shadow=0;" vertex="1" parent="1">
+          <mxGeometry x="70.65" y="1299.51" width="307.80" height="75.60" as="geometry" />
+        </mxCell>
+        <mxCell id="cleanup_done" value="清理完成？" style="shape=rhombus;whiteSpace=wrap;html=0;fillColor=#ffffff;strokeColor=#30363b;strokeWidth=1.4;fontColor=#111111;fontFamily=Arial Unicode MS;fontSize=24;align=center;verticalAlign=middle;spacing=10;shadow=0;" vertex="1" parent="1">
+          <mxGeometry x="89.36" y="1439.61" width="270.38" height="102.60" as="geometry" />
+        </mxCell>
+        <mxCell id="preserved" value="释放容量&#10;保留数据、模型与历史" style="shape=ellipse;whiteSpace=wrap;html=0;fillColor=#ffffff;strokeColor=#30363b;strokeWidth=1.4;fontColor=#111111;fontFamily=Arial Unicode MS;fontSize=24;align=center;verticalAlign=middle;spacing=10;shadow=0;" vertex="1" parent="1">
+          <mxGeometry x="30.00" y="1606.72" width="389.09" height="128.93" as="geometry" />
+        </mxCell>
+        <mxCell id="review" value="独立审核通过&#10;且证据一致？" style="shape=rhombus;whiteSpace=wrap;html=0;fillColor=#ffffff;strokeColor=#30363b;strokeWidth=1.4;fontColor=#111111;fontFamily=Arial Unicode MS;fontSize=24;align=center;verticalAlign=middle;spacing=10;shadow=0;" vertex="1" parent="1">
+          <mxGeometry x="448.87" y="633.00" width="346.37" height="135.00" as="geometry" />
+        </mxCell>
+        <mxCell id="rejected" value="保留待审核或未批准状态&#10;拒绝生产部署" style="shape=rectangle;rounded=0;whiteSpace=wrap;html=0;fillColor=#ffffff;strokeColor=#30363b;strokeWidth=1.4;fontColor=#111111;fontFamily=Arial Unicode MS;fontSize=24;align=center;verticalAlign=middle;spacing=10;shadow=0;" vertex="1" parent="1">
+          <mxGeometry x="460.05" y="832.50" width="324.00" height="91.17" as="geometry" />
+        </mxCell>
+        <mxCell id="production" value="创建生产端点" style="shape=rectangle;rounded=0;whiteSpace=wrap;html=0;fillColor=#ffffff;strokeColor=#30363b;strokeWidth=1.4;fontColor=#111111;fontFamily=Arial Unicode MS;fontSize=24;align=center;verticalAlign=middle;spacing=10;shadow=0;dashed=1;dashPattern=6 5;" vertex="1" parent="1">
+          <mxGeometry x="865.35" y="662.70" width="302.40" height="75.60" as="geometry" />
+        </mxCell>
+        <mxCell id="edge-0" value="" style="edgeStyle=none;rounded=0;html=0;strokeColor=#454c52;strokeWidth=1.4;startArrow=none;startFill=1;endArrow=classic;endFill=1;fontColor=#30363b;fontFamily=Arial Unicode MS;fontSize=18;labelBackgroundColor=#ffffff;exitX=0.50000;exitY=1.00000;exitPerimeter=0;entryX=0.50000;entryY=0.00000;entryPerimeter=0;" edge="1" parent="1" source="trained" target="registered">
+          <mxGeometry x="0" y="0" relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="edge-1" value="" style="edgeStyle=none;rounded=0;html=0;strokeColor=#454c52;strokeWidth=1.4;startArrow=none;startFill=1;endArrow=classic;endFill=1;fontColor=#30363b;fontFamily=Arial Unicode MS;fontSize=18;labelBackgroundColor=#ffffff;exitX=0.50000;exitY=1.00000;exitPerimeter=0;entryX=0.50000;entryY=0.00000;entryPerimeter=0;" edge="1" parent="1" source="registered" target="evaluated">
+          <mxGeometry x="0" y="0" relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="edge-2" value="" style="edgeStyle=none;rounded=0;html=0;strokeColor=#454c52;strokeWidth=1.4;startArrow=none;startFill=1;endArrow=classic;endFill=1;fontColor=#30363b;fontFamily=Arial Unicode MS;fontSize=18;labelBackgroundColor=#ffffff;exitX=0.50000;exitY=1.00000;exitPerimeter=0;entryX=0.50000;entryY=0.00000;entryPerimeter=0;" edge="1" parent="1" source="evaluated" target="purpose">
+          <mxGeometry x="0" y="0" relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="edge-3" value="验证" style="edgeStyle=none;rounded=0;html=0;strokeColor=#454c52;strokeWidth=1.4;startArrow=none;startFill=1;endArrow=classic;endFill=1;fontColor=#30363b;fontFamily=Arial Unicode MS;fontSize=18;labelBackgroundColor=#ffffff;exitX=0.15402;exitY=0.65863;exitPerimeter=0;entryX=0.88509;entryY=0.00000;entryPerimeter=0;" edge="1" parent="1" source="purpose" target="validation">
+          <mxGeometry x="0" y="0" relative="1" as="geometry">
+            <mxPoint x="-18.00" y="6.44" as="offset" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="edge-4" value="生产" style="edgeStyle=none;rounded=0;html=0;strokeColor=#454c52;strokeWidth=1.4;startArrow=none;startFill=1;endArrow=classic;endFill=1;fontColor=#30363b;fontFamily=Arial Unicode MS;fontSize=18;labelBackgroundColor=#ffffff;exitX=0.80726;exitY=0.69810;exitPerimeter=0;entryX=0.12778;entryY=0.36900;entryPerimeter=0;" edge="1" parent="1" source="purpose" target="review">
+          <mxGeometry x="0" y="0" relative="1" as="geometry">
+            <mxPoint x="-18.00" y="-19.44" as="offset" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="edge-5" value="" style="edgeStyle=none;rounded=0;html=0;strokeColor=#454c52;strokeWidth=1.4;startArrow=none;startFill=1;endArrow=classic;endFill=1;fontColor=#30363b;fontFamily=Arial Unicode MS;fontSize=18;labelBackgroundColor=#ffffff;exitX=0.50000;exitY=1.00000;exitPerimeter=0;entryX=0.50000;entryY=0.00000;entryPerimeter=0;" edge="1" parent="1" source="validation" target="predict">
+          <mxGeometry x="0" y="0" relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="edge-6" value="" style="edgeStyle=none;rounded=0;html=0;strokeColor=#454c52;strokeWidth=1.4;startArrow=none;startFill=1;endArrow=classic;endFill=1;fontColor=#30363b;fontFamily=Arial Unicode MS;fontSize=18;labelBackgroundColor=#ffffff;exitX=0.50000;exitY=1.00000;exitPerimeter=0;entryX=0.50000;entryY=0.00000;entryPerimeter=0;" edge="1" parent="1" source="predict" target="cleanup_trigger">
+          <mxGeometry x="0" y="0" relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="edge-7" value="" style="edgeStyle=none;rounded=0;html=0;strokeColor=#454c52;strokeWidth=1.4;startArrow=none;startFill=1;endArrow=classic;endFill=1;fontColor=#30363b;fontFamily=Arial Unicode MS;fontSize=18;labelBackgroundColor=#ffffff;exitX=0.50000;exitY=1.00000;exitPerimeter=0;entryX=0.50000;entryY=0.00000;entryPerimeter=0;" edge="1" parent="1" source="cleanup_trigger" target="endpoint_delete">
+          <mxGeometry x="0" y="0" relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="edge-8" value="" style="edgeStyle=none;rounded=0;html=0;strokeColor=#454c52;strokeWidth=1.4;startArrow=none;startFill=1;endArrow=classic;endFill=1;fontColor=#30363b;fontFamily=Arial Unicode MS;fontSize=18;labelBackgroundColor=#ffffff;exitX=0.50000;exitY=1.00000;exitPerimeter=0;entryX=0.50000;entryY=0.00000;entryPerimeter=0;" edge="1" parent="1" source="endpoint_delete" target="associated_delete">
+          <mxGeometry x="0" y="0" relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="edge-9" value="" style="edgeStyle=none;rounded=0;html=0;strokeColor=#454c52;strokeWidth=1.4;startArrow=none;startFill=1;endArrow=classic;endFill=1;fontColor=#30363b;fontFamily=Arial Unicode MS;fontSize=18;labelBackgroundColor=#ffffff;exitX=0.64639;exitY=1.00000;exitPerimeter=0;entryX=0.66666;entryY=0.16155;entryPerimeter=0;" edge="1" parent="1" source="associated_delete" target="cleanup_done">
+          <mxGeometry x="0" y="0" relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="edge-10" value="是" style="edgeStyle=none;rounded=0;html=0;strokeColor=#454c52;strokeWidth=1.4;startArrow=none;startFill=1;endArrow=classic;endFill=1;fontColor=#30363b;fontFamily=Arial Unicode MS;fontSize=18;labelBackgroundColor=#ffffff;exitX=0.50000;exitY=1.00000;exitPerimeter=0;entryX=0.50000;entryY=0.00000;entryPerimeter=0;" edge="1" parent="1" source="cleanup_done" target="preserved">
+          <mxGeometry x="0" y="0" relative="1" as="geometry">
+            <mxPoint x="-9.00" y="-19.43" as="offset" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="edge-11" value="否：继续核对" style="edgeStyle=none;rounded=0;html=0;strokeColor=#454c52;strokeWidth=1.4;startArrow=none;startFill=1;endArrow=classic;endFill=1;fontColor=#30363b;fontFamily=Arial Unicode MS;fontSize=18;labelBackgroundColor=#ffffff;exitX=0.33334;exitY=0.16038;exitPerimeter=0;entryX=0.35359;entryY=1.00000;entryPerimeter=0;" edge="1" parent="1" source="cleanup_done" target="associated_delete">
+          <mxGeometry x="0" y="0" relative="1" as="geometry">
+            <mxPoint x="-54.00" y="-6.44" as="offset" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="edge-12" value="否" style="edgeStyle=none;rounded=0;html=0;strokeColor=#454c52;strokeWidth=1.4;startArrow=none;startFill=1;endArrow=classic;endFill=1;fontColor=#30363b;fontFamily=Arial Unicode MS;fontSize=18;labelBackgroundColor=#ffffff;exitX=0.50000;exitY=1.00000;exitPerimeter=0;entryX=0.50000;entryY=0.00000;entryPerimeter=0;" edge="1" parent="1" source="review" target="rejected">
+          <mxGeometry x="0" y="0" relative="1" as="geometry">
+            <mxPoint x="-9.00" y="-19.44" as="offset" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="edge-13" value="是" style="edgeStyle=none;rounded=0;html=0;strokeColor=#454c52;strokeWidth=1.4;startArrow=none;startFill=1;endArrow=classic;endFill=1;fontColor=#30363b;fontFamily=Arial Unicode MS;fontSize=18;labelBackgroundColor=#ffffff;exitX=1.00000;exitY=0.50111;exitPerimeter=0;entryX=0.00000;entryY=0.50198;entryPerimeter=0;dashed=1;dashPattern=6 5;" edge="1" parent="1" source="review" target="production">
+          <mxGeometry x="0" y="0" relative="1" as="geometry">
+            <mxPoint x="-15.49" y="-12.93" as="offset" />
+          </mxGeometry>
+        </mxCell>
+      </root>
+    </mxGraphModel>
+  </diagram>
+</mxfile>

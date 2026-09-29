@@ -1,0 +1,41 @@
+digraph ModelLifecycle {
+  graph [rankdir=TB, bgcolor="white", fontname="Arial Unicode MS", fontsize=16,
+         nodesep=0.65, ranksep=0.60, pad=0.28, splines=ortho, outputorder=edgesfirst];
+  node [shape=box, style=filled, fillcolor=white, color="#30363b", penwidth=1.15,
+        fontname="Arial Unicode MS", fontsize=16, margin="0.18,0.12", width=2.85, height=0.70];
+  edge [color="#454c52", penwidth=1.10, arrowsize=0.70,
+        fontname="Arial Unicode MS", fontsize=12, fontcolor="#30363b"];
+
+  trained [label="SageMaker 训练完成", group=main];
+  registered [label="登记模型并固定产物版本", group=main];
+  evaluated [label="外部验证与保留测试\n保存评估依据", group=main];
+  purpose [shape=diamond, label="服务用途", width=2.0, height=0.95, group=main];
+  validation [label="创建临时验证端点", group=validation];
+  predict [label="确认 InService\n执行预测一致性检查", group=validation];
+  cleanup_trigger [label="到期或申请回收\n后台核对资源状态", group=validation];
+  endpoint_delete [label="删除验证端点\n确认端点不存在", group=validation];
+  associated_delete [label="清理所属配置与服务模型", group=validation];
+  cleanup_done [shape=diamond, label="清理完成？", width=2.3, height=0.95, group=validation];
+  preserved [shape=ellipse, label="释放容量\n保留数据、模型与历史", width=3.1, height=0.85, group=validation];
+  review [shape=diamond, label="独立审核通过\n且证据一致？", width=2.8, height=1.25, group=production];
+  rejected [label="保留待审核或未批准状态\n拒绝生产部署", width=3.0, group=production];
+  production [label="创建生产端点", width=2.8, style="filled,dashed"];
+
+  trained -> registered [weight=100];
+  registered -> evaluated [weight=100];
+  evaluated -> purpose [weight=100];
+  purpose -> validation [xlabel="验证"];
+  purpose -> review [xlabel="生产"];
+  validation -> predict [weight=100];
+  predict -> cleanup_trigger [weight=100];
+  cleanup_trigger -> endpoint_delete [weight=100];
+  endpoint_delete -> associated_delete [weight=100];
+  associated_delete -> cleanup_done [weight=100];
+  cleanup_done -> preserved [xlabel="是", weight=100];
+  cleanup_done -> associated_delete [xlabel="否：继续核对", constraint=false];
+  review -> rejected [xlabel="否", weight=100];
+  review -> production [xlabel="是", style=dashed, constraint=false];
+
+  {rank=same; validation; review; production;}
+  {rank=same; predict; rejected;}
+}

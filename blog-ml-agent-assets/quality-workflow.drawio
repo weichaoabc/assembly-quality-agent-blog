@@ -1,0 +1,67 @@
+<?xml version='1.0' encoding='utf-8'?>
+<mxfile host="app.diagrams.net" type="device" compressed="false">
+  <diagram id="quality-workflow" name="业务协作流程">
+    <mxGraphModel dx="1400" dy="1600" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="854" pageHeight="1069" background="#ffffff" math="0" shadow="0">
+      <root>
+        <mxCell id="0" />
+        <mxCell id="1" parent="0" />
+        <mxCell id="request" value="质量工程师&#10;确认预测目标与检查名额" style="shape=ellipse;whiteSpace=wrap;html=0;fillColor=#ffffff;strokeColor=#30363b;strokeWidth=1.4;fontColor=#111111;fontFamily=Arial Unicode MS;fontSize=24;align=center;verticalAlign=middle;spacing=10;shadow=0;" vertex="1" parent="1">
+          <mxGeometry x="29.99" y="30.00" width="422.51" height="128.93" as="geometry" />
+        </mxCell>
+        <mxCell id="agent" value="ML Agent&#10;调用建模工具与查询结果" style="shape=rectangle;rounded=0;whiteSpace=wrap;html=0;fillColor=#ffffff;strokeColor=#30363b;strokeWidth=1.4;fontColor=#111111;fontFamily=Arial Unicode MS;fontSize=24;align=center;verticalAlign=middle;spacing=10;shadow=0;" vertex="1" parent="1">
+          <mxGeometry x="79.25" y="214.44" width="324.00" height="91.17" as="geometry" />
+        </mxCell>
+        <mxCell id="data" value="检查装配记录&#10;关联历史测试结果" style="shape=rectangle;rounded=0;whiteSpace=wrap;html=0;fillColor=#ffffff;strokeColor=#30363b;strokeWidth=1.4;fontColor=#111111;fontFamily=Arial Unicode MS;fontSize=24;align=center;verticalAlign=middle;spacing=10;shadow=0;" vertex="1" parent="1">
+          <mxGeometry x="79.25" y="361.11" width="324.00" height="91.17" as="geometry" />
+        </mxCell>
+        <mxCell id="modeling" value="AutoGluon 二分类模型&#10;训练与评估" style="shape=rectangle;rounded=0;whiteSpace=wrap;html=0;fillColor=#ffffff;strokeColor=#30363b;strokeWidth=1.4;fontColor=#111111;fontFamily=Arial Unicode MS;fontSize=24;align=center;verticalAlign=middle;spacing=10;shadow=0;" vertex="1" parent="1">
+          <mxGeometry x="79.25" y="507.78" width="324.00" height="91.17" as="geometry" />
+        </mxCell>
+        <mxCell id="results" value="为待测试发动机评分&#10;输出不通过的风险分数" style="shape=rectangle;rounded=0;whiteSpace=wrap;html=0;fillColor=#ffffff;strokeColor=#30363b;strokeWidth=1.4;fontColor=#111111;fontFamily=Arial Unicode MS;fontSize=24;align=center;verticalAlign=middle;spacing=10;shadow=0;" vertex="1" parent="1">
+          <mxGeometry x="79.25" y="654.45" width="324.00" height="91.17" as="geometry" />
+        </mxCell>
+        <mxCell id="records" value="训练、模型与预测记录" style="shape=cylinder3;boundedLbl=1;backgroundOutline=1;size=12;whiteSpace=wrap;html=0;fillColor=#ffffff;strokeColor=#30363b;strokeWidth=1.4;fontColor=#111111;fontFamily=Arial Unicode MS;fontSize=24;align=center;verticalAlign=middle;spacing=10;shadow=0;" vertex="1" parent="1">
+          <mxGeometry x="477.94" y="659.79" width="345.60" height="80.50" as="geometry" />
+        </mxCell>
+        <mxCell id="engineer" value="工程师确认筛选规则&#10;程序生成建议人工检查清单" style="shape=rectangle;rounded=0;whiteSpace=wrap;html=0;fillColor=#ffffff;strokeColor=#30363b;strokeWidth=1.4;fontColor=#111111;fontFamily=Arial Unicode MS;fontSize=24;align=center;verticalAlign=middle;spacing=10;shadow=0;" vertex="1" parent="1">
+          <mxGeometry x="79.25" y="801.12" width="324.00" height="91.17" as="geometry" />
+        </mxCell>
+        <mxCell id="pilot" value="现场试点&#10;人员检查发动机并记录结果" style="shape=rectangle;rounded=0;whiteSpace=wrap;html=0;fillColor=#ffffff;strokeColor=#30363b;strokeWidth=1.4;fontColor=#111111;fontFamily=Arial Unicode MS;fontSize=24;align=center;verticalAlign=middle;spacing=10;shadow=0;dashed=1;dashPattern=6 5;" vertex="1" parent="1">
+          <mxGeometry x="79.25" y="947.79" width="324.00" height="91.17" as="geometry" />
+        </mxCell>
+        <mxCell id="edge-0" value="" style="edgeStyle=none;rounded=0;html=0;strokeColor=#454c52;strokeWidth=1.4;startArrow=none;startFill=1;endArrow=classic;endFill=1;fontColor=#30363b;fontFamily=Arial Unicode MS;fontSize=18;labelBackgroundColor=#ffffff;exitX=0.50000;exitY=1.00000;exitPerimeter=0;entryX=0.50000;entryY=0.00000;entryPerimeter=0;" edge="1" parent="1" source="request" target="agent">
+          <mxGeometry x="0" y="0" relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="edge-1" value="" style="edgeStyle=none;rounded=0;html=0;strokeColor=#454c52;strokeWidth=1.4;startArrow=none;startFill=1;endArrow=classic;endFill=1;fontColor=#30363b;fontFamily=Arial Unicode MS;fontSize=18;labelBackgroundColor=#ffffff;exitX=0.50000;exitY=1.00000;exitPerimeter=0;entryX=0.50000;entryY=0.00000;entryPerimeter=0;" edge="1" parent="1" source="agent" target="data">
+          <mxGeometry x="0" y="0" relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="edge-2" value="" style="edgeStyle=none;rounded=0;html=0;strokeColor=#454c52;strokeWidth=1.4;startArrow=none;startFill=1;endArrow=classic;endFill=1;fontColor=#30363b;fontFamily=Arial Unicode MS;fontSize=18;labelBackgroundColor=#ffffff;exitX=0.50000;exitY=1.00000;exitPerimeter=0;entryX=0.50000;entryY=0.00000;entryPerimeter=0;" edge="1" parent="1" source="data" target="modeling">
+          <mxGeometry x="0" y="0" relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="edge-3" value="" style="edgeStyle=none;rounded=0;html=0;strokeColor=#454c52;strokeWidth=1.4;startArrow=none;startFill=1;endArrow=classic;endFill=1;fontColor=#30363b;fontFamily=Arial Unicode MS;fontSize=18;labelBackgroundColor=#ffffff;exitX=0.50000;exitY=1.00000;exitPerimeter=0;entryX=0.50000;entryY=0.00000;entryPerimeter=0;" edge="1" parent="1" source="modeling" target="results">
+          <mxGeometry x="0" y="0" relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="edge-4" value="保存" style="edgeStyle=none;rounded=0;html=0;strokeColor=#454c52;strokeWidth=1.4;startArrow=none;startFill=1;endArrow=classic;endFill=1;fontColor=#30363b;fontFamily=Arial Unicode MS;fontSize=18;labelBackgroundColor=#ffffff;exitX=1.00000;exitY=0.49556;exitPerimeter=0;entryX=0.50000;entryY=0.00000;entryPerimeter=0;" edge="1" parent="1" source="modeling" target="records">
+          <mxGeometry x="0" y="0" relative="1" as="geometry">
+            <Array as="points">
+              <mxPoint x="518.01" y="552.96" />
+              <mxPoint x="650.75" y="552.96" />
+            </Array>
+            <mxPoint x="-24.49" y="-12.93" as="offset" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="edge-5" value="查询" style="edgeStyle=none;rounded=0;html=0;strokeColor=#454c52;strokeWidth=1.4;startArrow=none;startFill=1;endArrow=classic;endFill=1;fontColor=#30363b;fontFamily=Arial Unicode MS;fontSize=18;labelBackgroundColor=#ffffff;exitX=0.00000;exitY=0.49907;exitPerimeter=0;entryX=1.00000;entryY=0.49918;entryPerimeter=0;" edge="1" parent="1" source="records" target="results">
+          <mxGeometry x="0" y="0" relative="1" as="geometry">
+            <mxPoint x="-11.50" y="-12.93" as="offset" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="edge-6" value="" style="edgeStyle=none;rounded=0;html=0;strokeColor=#454c52;strokeWidth=1.4;startArrow=none;startFill=1;endArrow=classic;endFill=1;fontColor=#30363b;fontFamily=Arial Unicode MS;fontSize=18;labelBackgroundColor=#ffffff;exitX=0.50000;exitY=1.00000;exitPerimeter=0;entryX=0.50000;entryY=0.00000;entryPerimeter=0;" edge="1" parent="1" source="results" target="engineer">
+          <mxGeometry x="0" y="0" relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="edge-7" value="" style="edgeStyle=none;rounded=0;html=0;strokeColor=#454c52;strokeWidth=1.4;startArrow=none;startFill=1;endArrow=classic;endFill=1;fontColor=#30363b;fontFamily=Arial Unicode MS;fontSize=18;labelBackgroundColor=#ffffff;exitX=0.50000;exitY=1.00000;exitPerimeter=0;entryX=0.50000;entryY=0.00000;entryPerimeter=0;dashed=1;dashPattern=6 5;" edge="1" parent="1" source="engineer" target="pilot">
+          <mxGeometry x="0" y="0" relative="1" as="geometry" />
+        </mxCell>
+      </root>
+    </mxGraphModel>
+  </diagram>
+</mxfile>

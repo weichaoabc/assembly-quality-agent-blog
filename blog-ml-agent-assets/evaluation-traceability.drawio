@@ -1,0 +1,83 @@
+<mxfile host="app.diagrams.net" type="device">
+  <diagram id="evaluation-traceability" name="评估与结果追溯">
+    <mxGraphModel dx="1200" dy="900" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="1018" pageHeight="763" math="0" shadow="0">
+      <root>
+        <mxCell id="0" />
+        <mxCell id="1" parent="0" />
+        <mxCell id="model" value="已登记模型&#10;模型编号 / 固定产物版本&#10;保存的特征处理步骤" vertex="1" parent="1" style="shape=cylinder;boundedLbl=1;backgroundOutline=1;whiteSpace=wrap;html=0;fillColor=#ffffff;strokeColor=#30363b;strokeWidth=1.5;fontColor=#20262b;fontFamily=Arial Unicode MS;fontSize=21;align=center;verticalAlign=middle;">
+          <mxGeometry x="146.0" y="30.0" width="326.4" height="151.31" as="geometry" />
+        </mxCell>
+        <mxCell id="data" value="评估输入&#10;验证集或保留测试集&#10;数据角色 / 文件指纹" vertex="1" parent="1" style="shape=cylinder;boundedLbl=1;backgroundOutline=1;whiteSpace=wrap;html=0;fillColor=#ffffff;strokeColor=#30363b;strokeWidth=1.5;fontColor=#20262b;fontFamily=Arial Unicode MS;fontSize=21;align=center;verticalAlign=middle;">
+          <mxGeometry x="522.0" y="30.0" width="326.4" height="151.31" as="geometry" />
+        </mxCell>
+        <mxCell id="evaluate" value="evaluate_model&#10;按保存的步骤处理原始特征&#10;计算并保存评估结果" vertex="1" parent="1" style="rounded=0;whiteSpace=wrap;html=0;fillColor=#ffffff;strokeColor=#30363b;strokeWidth=1.5;fontColor=#20262b;fontFamily=Arial Unicode MS;fontSize=21;align=center;verticalAlign=middle;">
+          <mxGeometry x="319.6" y="241.31" width="355.2" height="110.04" as="geometry" />
+        </mxCell>
+        <mxCell id="record" value="评估记录&#10;关联模型与数据&#10;保存指标、口径与时间" vertex="1" parent="1" style="shape=cylinder;boundedLbl=1;backgroundOutline=1;whiteSpace=wrap;html=0;fillColor=#ffffff;strokeColor=#30363b;strokeWidth=1.5;fontColor=#20262b;fontFamily=Arial Unicode MS;fontSize=21;align=center;verticalAlign=middle;">
+          <mxGeometry x="319.6" y="411.35" width="355.2" height="151.31" as="geometry" />
+        </mxCell>
+        <mxCell id="workbench" value="工作台查看&#10;完整指标与混淆矩阵&#10;数据和模型来源" vertex="1" parent="1" style="rounded=0;whiteSpace=wrap;html=0;fillColor=#ffffff;strokeColor=#30363b;strokeWidth=1.5;fontColor=#20262b;fontFamily=Arial Unicode MS;fontSize=21;align=center;verticalAlign=middle;">
+          <mxGeometry x="30.0" y="622.65" width="278.4" height="110.04" as="geometry" />
+        </mxCell>
+        <mxCell id="agent" value="Agent 查询与解释&#10;读取同一份结果&#10;回答工程师的追问" vertex="1" parent="1" style="rounded=0;whiteSpace=wrap;html=0;fillColor=#ffffff;strokeColor=#30363b;strokeWidth=1.5;fontColor=#20262b;fontFamily=Arial Unicode MS;fontSize=21;align=center;verticalAlign=middle;">
+          <mxGeometry x="358.0" y="622.65" width="278.4" height="110.04" as="geometry" />
+        </mxCell>
+        <mxCell id="compare" value="compare_models&#10;检查目标、任务和指标&#10;匹配外部验证数据指纹" vertex="1" parent="1" style="rounded=0;whiteSpace=wrap;html=0;fillColor=#ffffff;strokeColor=#30363b;strokeWidth=1.5;fontColor=#20262b;fontFamily=Arial Unicode MS;fontSize=21;align=center;verticalAlign=middle;">
+          <mxGeometry x="686.0" y="622.65" width="302.4" height="110.04" as="geometry" />
+        </mxCell>
+        <mxCell id="edge-1" source="model" target="evaluate" edge="1" parent="1" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=0;endArrow=block;endFill=1;strokeColor=#454c52;strokeWidth=1.5;">
+          <mxGeometry relative="1" as="geometry">
+            <Array as="points">
+              <mxPoint x="396.0" y="181.56" />
+              <mxPoint x="396.0" y="229.1" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="edge-2" source="data" target="evaluate" edge="1" parent="1" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=0;endArrow=block;endFill=1;strokeColor=#454c52;strokeWidth=1.5;">
+          <mxGeometry relative="1" as="geometry">
+            <Array as="points">
+              <mxPoint x="598.4" y="181.56" />
+              <mxPoint x="598.4" y="229.1" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="edge-3" source="evaluate" target="record" edge="1" parent="1" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=0;endArrow=block;endFill=1;strokeColor=#454c52;strokeWidth=1.5;">
+          <mxGeometry relative="1" as="geometry">
+            <Array as="points">
+              <mxPoint x="497.2" y="351.99" />
+              <mxPoint x="497.2" y="399.16" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="edge-4" source="record" target="workbench" edge="1" parent="1" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=0;endArrow=block;endFill=1;strokeColor=#454c52;strokeWidth=1.5;">
+          <mxGeometry relative="1" as="geometry">
+            <Array as="points">
+              <mxPoint x="338.8" y="558.67" />
+              <mxPoint x="338.8" y="612.87" />
+              <mxPoint x="338.8" y="678.02" />
+              <mxPoint x="320.42" y="678.02" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="edge-5" source="record" target="agent" edge="1" parent="1" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=0;endArrow=block;endFill=1;strokeColor=#454c52;strokeWidth=1.5;">
+          <mxGeometry relative="1" as="geometry">
+            <Array as="points">
+              <mxPoint x="497.2" y="562.91" />
+              <mxPoint x="497.2" y="610.44" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="edge-6" source="record" target="compare" edge="1" parent="1" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=0;endArrow=block;endFill=1;strokeColor=#454c52;strokeWidth=1.5;">
+          <mxGeometry relative="1" as="geometry">
+            <Array as="points">
+              <mxPoint x="655.6" y="558.67" />
+              <mxPoint x="655.6" y="612.87" />
+              <mxPoint x="655.6" y="678.02" />
+              <mxPoint x="674.04" y="678.02" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+      </root>
+    </mxGraphModel>
+  </diagram>
+</mxfile>

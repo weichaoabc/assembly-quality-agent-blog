@@ -1,0 +1,98 @@
+<?xml version='1.0' encoding='utf-8'?>
+<mxfile host="app.diagrams.net" type="device" compressed="false">
+  <diagram id="solution-architecture" name="ML Agent 调用流程">
+    <mxGraphModel dx="1400" dy="1600" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="1251" pageHeight="1408" background="#ffffff" math="0" shadow="0">
+      <root>
+        <mxCell id="0" />
+        <mxCell id="1" parent="0" />
+        <mxCell id="user" value="质量工程师&#10;提出要求 / 查看结果" style="shape=ellipse;whiteSpace=wrap;html=0;fillColor=#ffffff;strokeColor=#30363b;strokeWidth=1.4;fontColor=#111111;fontFamily=Arial Unicode MS;fontSize=24;align=center;verticalAlign=middle;spacing=10;shadow=0;" vertex="1" parent="1">
+          <mxGeometry x="463.70" y="29.99" width="376.37" height="144.59" as="geometry" />
+        </mxCell>
+        <mxCell id="agent" value="Agent · Strands&#10;理解要求 / 选择工具 / 解释返回&#10;运行于 AgentCore Runtime" style="shape=rectangle;rounded=0;whiteSpace=wrap;html=0;fillColor=#ffffff;strokeColor=#30363b;strokeWidth=1.4;fontColor=#111111;fontFamily=Arial Unicode MS;fontSize=24;align=center;verticalAlign=middle;spacing=10;shadow=0;" vertex="1" parent="1">
+          <mxGeometry x="425.08" y="261.58" width="453.60" height="138.24" as="geometry" />
+        </mxCell>
+        <mxCell id="skill" value="业务 Skill&#10;数据与资源确认&#10;训练 / 评估 / 预测步骤" style="shape=rectangle;rounded=0;whiteSpace=wrap;html=0;fillColor=#ffffff;strokeColor=#30363b;strokeWidth=1.4;fontColor=#111111;fontFamily=Arial Unicode MS;fontSize=24;align=center;verticalAlign=middle;spacing=10;shadow=0;" vertex="1" parent="1">
+          <mxGeometry x="923.09" y="261.58" width="291.60" height="138.24" as="geometry" />
+        </mxCell>
+        <mxCell id="bedrock" value="基础模型服务&#10;按部署区域选择" style="shape=rectangle;rounded=0;whiteSpace=wrap;html=0;fillColor=#ffffff;strokeColor=#30363b;strokeWidth=1.4;fontColor=#111111;fontFamily=Arial Unicode MS;fontSize=24;align=center;verticalAlign=middle;spacing=10;shadow=0;" vertex="1" parent="1">
+          <mxGeometry x="92.98" y="279.58" width="280.80" height="102.24" as="geometry" />
+        </mxCell>
+        <mxCell id="gateway" value="AgentCore Gateway&#10;MCP 工具发现与调用&#10;tools/list · tools/call" style="shape=rectangle;rounded=0;whiteSpace=wrap;html=0;fillColor=#ffffff;strokeColor=#30363b;strokeWidth=1.4;fontColor=#111111;fontFamily=Arial Unicode MS;fontSize=24;align=center;verticalAlign=middle;spacing=10;shadow=0;" vertex="1" parent="1">
+          <mxGeometry x="462.88" y="488.00" width="378.00" height="138.24" as="geometry" />
+        </mxCell>
+        <mxCell id="schema" value="工具定义（S3）&#10;名称 / 用途 / 输入参数" style="shape=cylinder3;boundedLbl=1;backgroundOutline=1;size=12;whiteSpace=wrap;html=0;fillColor=#ffffff;strokeColor=#30363b;strokeWidth=1.4;fontColor=#111111;fontFamily=Arial Unicode MS;fontSize=24;align=center;verticalAlign=middle;spacing=10;shadow=0;" vertex="1" parent="1">
+          <mxGeometry x="917.68" y="486.82" width="302.40" height="140.58" as="geometry" />
+        </mxCell>
+        <mxCell id="tools" value="Agent 可调用的 ML 工具&#10;train_model · get_training_status&#10;evaluate_model · predict · invoke_endpoint&#10;项目工具实现：Lambda" style="shape=rectangle;rounded=0;whiteSpace=wrap;html=0;fillColor=#ffffff;strokeColor=#30363b;strokeWidth=1.4;fontColor=#111111;fontFamily=Arial Unicode MS;fontSize=24;align=center;verticalAlign=middle;spacing=10;shadow=0;" vertex="1" parent="1">
+          <mxGeometry x="349.49" y="714.41" width="604.80" height="174.24" as="geometry" />
+        </mxCell>
+        <mxCell id="train" value="训练与状态查询&#10;train_model / get_training_status&#10;AutoGluon 训练&#10;SageMaker Training Job" style="shape=rectangle;rounded=0;whiteSpace=wrap;html=0;fillColor=#ffffff;strokeColor=#30363b;strokeWidth=1.4;fontColor=#111111;fontFamily=Arial Unicode MS;fontSize=24;align=center;verticalAlign=middle;spacing=10;shadow=0;" vertex="1" parent="1">
+          <mxGeometry x="30.00" y="975.65" width="406.76" height="174.24" as="geometry" />
+        </mxCell>
+        <mxCell id="evaluate" value="同步评估与离线预测&#10;evaluate_model / predict&#10;AutoGluon 评估与预测&#10;同一 Lambda 内执行" style="shape=rectangle;rounded=0;whiteSpace=wrap;html=0;fillColor=#ffffff;strokeColor=#30363b;strokeWidth=1.4;fontColor=#111111;fontFamily=Arial Unicode MS;fontSize=24;align=center;verticalAlign=middle;spacing=10;shadow=0;" vertex="1" parent="1">
+          <mxGeometry x="481.78" y="975.65" width="340.20" height="174.24" as="geometry" />
+        </mxCell>
+        <mxCell id="endpoint" value="在线预测&#10;invoke_endpoint&#10;AutoGluon 在线推理&#10;SageMaker Endpoint" style="shape=rectangle;rounded=0;whiteSpace=wrap;html=0;fillColor=#ffffff;strokeColor=#30363b;strokeWidth=1.4;fontColor=#111111;fontFamily=Arial Unicode MS;fontSize=24;align=center;verticalAlign=middle;spacing=10;shadow=0;" vertex="1" parent="1">
+          <mxGeometry x="866.38" y="975.65" width="324.00" height="174.24" as="geometry" />
+        </mxCell>
+        <mxCell id="storage" value="Amazon S3&#10;输入数据 / 模型产物 / 预测文件" style="shape=cylinder3;boundedLbl=1;backgroundOutline=1;size=12;whiteSpace=wrap;html=0;fillColor=#ffffff;strokeColor=#30363b;strokeWidth=1.4;fontColor=#111111;fontFamily=Arial Unicode MS;fontSize=24;align=center;verticalAlign=middle;spacing=10;shadow=0;" vertex="1" parent="1">
+          <mxGeometry x="425.08" y="1236.88" width="453.60" height="140.58" as="geometry" />
+        </mxCell>
+        <mxCell id="edge-0" value="业务对话" style="edgeStyle=none;rounded=0;html=0;strokeColor=#454c52;strokeWidth=1.4;startArrow=classic;startFill=1;endArrow=classic;endFill=1;fontColor=#30363b;fontFamily=Arial Unicode MS;fontSize=18;labelBackgroundColor=#ffffff;exitX=0.50000;exitY=1.00000;exitPerimeter=0;entryX=0.50000;entryY=0.00000;entryPerimeter=0;" edge="1" parent="1" source="user" target="agent">
+          <mxGeometry x="0" y="0" relative="1" as="geometry">
+            <mxPoint x="-36.00" y="-12.93" as="offset" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="edge-1" value="" style="edgeStyle=none;rounded=0;html=0;strokeColor=#454c52;strokeWidth=1.4;startArrow=classic;startFill=1;endArrow=classic;endFill=1;fontColor=#30363b;fontFamily=Arial Unicode MS;fontSize=18;labelBackgroundColor=#ffffff;exitX=1.00000;exitY=0.67371;exitPerimeter=0;entryX=0.00000;entryY=0.62847;entryPerimeter=0;" edge="1" parent="1" source="bedrock" target="agent">
+          <mxGeometry x="0" y="0" relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="edge-2" value="" style="edgeStyle=none;rounded=0;html=0;strokeColor=#454c52;strokeWidth=1.4;startArrow=none;startFill=1;endArrow=classic;endFill=1;fontColor=#30363b;fontFamily=Arial Unicode MS;fontSize=18;labelBackgroundColor=#ffffff;exitX=0.00000;exitY=0.67188;exitPerimeter=0;entryX=1.00000;entryY=0.67188;entryPerimeter=0;" edge="1" parent="1" source="skill" target="agent">
+          <mxGeometry x="0" y="0" relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="edge-3" value="发现 / 调用 / 返回" style="edgeStyle=none;rounded=0;html=0;strokeColor=#454c52;strokeWidth=1.4;startArrow=classic;startFill=1;endArrow=classic;endFill=1;fontColor=#30363b;fontFamily=Arial Unicode MS;fontSize=18;labelBackgroundColor=#ffffff;exitX=0.50000;exitY=1.00000;exitPerimeter=0;entryX=0.50000;entryY=0.00000;entryPerimeter=0;" edge="1" parent="1" source="agent" target="gateway">
+          <mxGeometry x="0" y="0" relative="1" as="geometry">
+            <mxPoint x="-67.50" y="-12.94" as="offset" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="edge-4" value="" style="edgeStyle=none;rounded=0;html=0;strokeColor=#454c52;strokeWidth=1.4;startArrow=none;startFill=1;endArrow=classic;endFill=1;fontColor=#30363b;fontFamily=Arial Unicode MS;fontSize=18;labelBackgroundColor=#ffffff;exitX=0.00000;exitY=0.49893;exitPerimeter=0;entryX=1.00000;entryY=0.49891;entryPerimeter=0;" edge="1" parent="1" source="schema" target="gateway">
+          <mxGeometry x="0" y="0" relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="edge-5" value="传入操作与参数 / 返回结果" style="edgeStyle=none;rounded=0;html=0;strokeColor=#454c52;strokeWidth=1.4;startArrow=classic;startFill=1;endArrow=classic;endFill=1;fontColor=#30363b;fontFamily=Arial Unicode MS;fontSize=18;labelBackgroundColor=#ffffff;exitX=0.50000;exitY=1.00000;exitPerimeter=0;entryX=0.50000;entryY=0.00000;entryPerimeter=0;" edge="1" parent="1" source="gateway" target="tools">
+          <mxGeometry x="0" y="0" relative="1" as="geometry">
+            <mxPoint x="-105.75" y="-12.94" as="offset" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="edge-6" value="提交 / 查询" style="edgeStyle=none;rounded=0;html=0;strokeColor=#454c52;strokeWidth=1.4;startArrow=classic;startFill=1;endArrow=classic;endFill=1;fontColor=#30363b;fontFamily=Arial Unicode MS;fontSize=18;labelBackgroundColor=#ffffff;exitX=0.07215;exitY=1.00000;exitPerimeter=0;entryX=0.89270;entryY=0.00000;entryPerimeter=0;" edge="1" parent="1" source="tools" target="train">
+          <mxGeometry x="0" y="0" relative="1" as="geometry">
+            <mxPoint x="-42.75" y="-12.94" as="offset" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="edge-7" value="函数内计算" style="edgeStyle=none;rounded=0;html=0;strokeColor=#454c52;strokeWidth=1.4;startArrow=classic;startFill=1;endArrow=classic;endFill=1;fontColor=#30363b;fontFamily=Arial Unicode MS;fontSize=18;labelBackgroundColor=#ffffff;exitX=0.50000;exitY=1.00000;exitPerimeter=0;entryX=0.50000;entryY=0.00000;entryPerimeter=0;" edge="1" parent="1" source="tools" target="evaluate">
+          <mxGeometry x="0" y="0" relative="1" as="geometry">
+            <mxPoint x="-45.00" y="-12.94" as="offset" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="edge-8" value="调用端点" style="edgeStyle=none;rounded=0;html=0;strokeColor=#454c52;strokeWidth=1.4;startArrow=classic;startFill=1;endArrow=classic;endFill=1;fontColor=#30363b;fontFamily=Arial Unicode MS;fontSize=18;labelBackgroundColor=#ffffff;exitX=0.92731;exitY=1.00000;exitPerimeter=0;entryX=0.13560;entryY=0.00000;entryPerimeter=0;" edge="1" parent="1" source="tools" target="endpoint">
+          <mxGeometry x="0" y="0" relative="1" as="geometry">
+            <mxPoint x="-36.00" y="-12.94" as="offset" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="edge-9" value="数据 / 模型" style="edgeStyle=none;rounded=0;html=0;strokeColor=#454c52;strokeWidth=1.4;startArrow=classic;startFill=1;endArrow=classic;endFill=1;fontColor=#30363b;fontFamily=Arial Unicode MS;fontSize=18;labelBackgroundColor=#ffffff;exitX=0.98563;exitY=1.00000;exitPerimeter=0;entryX=0.01286;entryY=0.03435;entryPerimeter=0;" edge="1" parent="1" source="train" target="storage">
+          <mxGeometry x="0" y="0" relative="1" as="geometry">
+            <mxPoint x="-42.75" y="-12.93" as="offset" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="edge-10" value="数据 / 模型 / 预测" style="edgeStyle=none;rounded=0;html=0;strokeColor=#454c52;strokeWidth=1.4;startArrow=classic;startFill=1;endArrow=classic;endFill=1;fontColor=#30363b;fontFamily=Arial Unicode MS;fontSize=18;labelBackgroundColor=#ffffff;exitX=0.50000;exitY=1.00000;exitPerimeter=0;entryX=0.50000;entryY=0.00000;entryPerimeter=0;" edge="1" parent="1" source="evaluate" target="storage">
+          <mxGeometry x="0" y="0" relative="1" as="geometry">
+            <mxPoint x="-67.50" y="-12.93" as="offset" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="edge-11" value="读取模型" style="edgeStyle=none;rounded=0;html=0;strokeColor=#454c52;strokeWidth=1.4;startArrow=classic;startFill=1;endArrow=none;endFill=1;fontColor=#30363b;fontFamily=Arial Unicode MS;fontSize=18;labelBackgroundColor=#ffffff;exitX=0.01898;exitY=1.00000;exitPerimeter=0;entryX=0.98644;entryY=0.03437;entryPerimeter=0;" edge="1" parent="1" source="endpoint" target="storage">
+          <mxGeometry x="0" y="0" relative="1" as="geometry">
+            <mxPoint x="-36.00" y="-6.43" as="offset" />
+          </mxGeometry>
+        </mxCell>
+      </root>
+    </mxGraphModel>
+  </diagram>
+</mxfile>

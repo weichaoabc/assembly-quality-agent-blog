@@ -1,0 +1,28 @@
+digraph QualityWorkflow {
+  graph [rankdir=TB, bgcolor="white", fontname="Arial Unicode MS", fontsize=16,
+         nodesep=0.70, ranksep=0.52, pad=0.28, splines=ortho, outputorder=edgesfirst];
+  node [shape=box, style=filled, fillcolor=white, color="#30363b", penwidth=1.15,
+        fontname="Arial Unicode MS", fontsize=16, margin="0.18,0.12",
+        width=3.0, height=0.72];
+  edge [color="#454c52", penwidth=1.10, arrowsize=0.70,
+        fontname="Arial Unicode MS", fontsize=12, fontcolor="#30363b"];
+
+  request [shape=ellipse, label="质量工程师\n确认预测目标与检查名额", group=main];
+  agent [label="ML Agent\n调用建模工具与查询结果", group=main];
+  data [label="检查装配记录\n关联历史测试结果", group=main];
+  modeling [label="AutoGluon 二分类模型\n训练与评估", group=main];
+  results [label="为待测试发动机评分\n输出不通过的风险分数", group=main];
+  records [shape=cylinder, label="训练、模型与预测记录", width=3.2];
+  engineer [label="工程师确认筛选规则\n程序生成建议人工检查清单", group=main];
+  pilot [label="现场试点\n人员检查发动机并记录结果", style="filled,dashed", group=main];
+
+  request -> agent [weight=100];
+  agent -> data [weight=100];
+  data -> modeling [weight=100];
+  modeling -> results [weight=100];
+  modeling -> records [xlabel="保存"];
+  records -> results [xlabel="查询", constraint=false];
+  results -> engineer [weight=100];
+  engineer -> pilot [style=dashed, weight=100];
+  {rank=same; results; records;}
+}
