@@ -1,5 +1,7 @@
 # 基于 Amazon Bedrock AgentCore 和 Amazon SageMaker AI 构建装配质量分析 Agent
 
+[下载完整资料包](https://github.com/weichaoabc/assembly-quality-agent-blog/releases/download/v2026.09.29/blog-ml-agent-customer-final.zip) · [下载 Word](https://github.com/weichaoabc/assembly-quality-agent-blog/releases/download/v2026.09.29/blog-ml-agent-paper.docx)
+
 发动机完成装配后，能否一次通过下线测试，是质量团队关注的问题。拧紧记录、工位等待和设备状态中包含了有用的信息，但把这些记录整理成数据、训练模型，再将结果用于现场工作，需要质量、数据和平台团队协作。
 
 本方案基于 Amazon Bedrock AgentCore 和 Amazon SageMaker AI 构建装配质量分析 Agent。工程师通过对话提出分析要求，Agent 调用工具完成数据检查、AutoGluon 建模、模型评估和预测，并协助解释结果。模型在发动机首次下线测试前给出风险分数，供质量团队安排额外人工检查。AgentCore 承载 Agent 并提供 MCP 工具接入，SageMaker AI 承担模型训练与在线推理，业务 Skill 指导 Agent 按质量分析流程组织操作。
@@ -141,7 +143,7 @@ Agent 使用 Strands Agents SDK 组织模型交互与工具调用，在 AgentCor
 
 历史数据按时间分为训练集、验证集和测试集：较早的数据用于训练，随后一段用于调整模型，较新的数据用于判断模型面对新生产数据时的表现。尚未获得有效测试结果的发动机可以参与评分，待结果返回后再纳入效果分析。
 
-文末的[示例数据与字段说明（ZIP）](blog-ml-agent-dataset.zip)提供装配记录、测试标签及预测结果，可帮助团队理解数据如何组织。实际实施时，由质量与数据团队共同确定字段含义、数据范围及更新频率。
+文末的[示例数据与字段说明（ZIP）](https://github.com/weichaoabc/assembly-quality-agent-blog/releases/download/v2026.09.29/blog-ml-agent-dataset.zip)提供装配记录、测试标签及预测结果，可帮助团队理解数据如何组织。实际实施时，由质量与数据团队共同确定字段含义、数据范围及更新频率。
 
 ### 通过对话提出分析要求
 
@@ -232,7 +234,7 @@ AgentCore 与基础模型服务分别配置。部署时，应为 Agent 选择可
 
 平台团队随后部署 Agent、ML 工具服务和 SageMaker AI 计算环境，将训练、评估和预测工具接入 Gateway，为 Agent 配置工具与业务 Skill。数据存放位置、角色权限及资源范围统一在平台中配置，工程师通过业务语言发起任务。
 
-完成建模后，先根据业务节奏选择文件预测或在线服务。以每天集中安排检查为目标时，可以先使用文件预测；需要在装配完成后立即评分时，再接入产线系统的在线调用。工具注册、配置和操作步骤见文末[部署与操作指南](blog-ml-agent-practice-guide.html)。
+完成建模后，先根据业务节奏选择文件预测或在线服务。以每天集中安排检查为目标时，可以先使用文件预测；需要在装配完成后立即评分时，再接入产线系统的在线调用。工具注册、配置和操作步骤见文末[部署与操作指南](blog-ml-agent-practice-guide.md)。
 
 ### 将预测结果接入现场工作
 
@@ -256,11 +258,11 @@ AgentCore 与基础模型服务分别配置。部署时，应为 Agent 选择可
 
 ### 配套资料
 
-[下载示例数据与字段说明（ZIP）](blog-ml-agent-dataset.zip)：包含模拟装配记录、下线测试标签、字段解释和预测结果，帮助团队理解建模所需的数据结构。
+[下载示例数据与字段说明（ZIP）](https://github.com/weichaoabc/assembly-quality-agent-blog/releases/download/v2026.09.29/blog-ml-agent-dataset.zip)：包含模拟装配记录、下线测试标签、字段解释和预测结果，帮助团队理解建模所需的数据结构。
 
-[下载模型评估示例数据（ZIP）](blog-ml-agent-test-dataset.zip)：提供用于评估预测效果的示例数据，方便数据人员进一步了解模型评估方法。
+[下载模型评估示例数据（ZIP）](https://github.com/weichaoabc/assembly-quality-agent-blog/releases/download/v2026.09.29/blog-ml-agent-test-dataset.zip)：提供用于评估预测效果的示例数据，方便数据人员进一步了解模型评估方法。
 
-[查看部署与操作指南](blog-ml-agent-practice-guide.html)：面向实施团队，介绍工具接入、环境配置和主要操作流程。需要了解示例计算细节的读者，可继续查看[数据与结果说明](blog-ml-agent-validation.html)。
+[查看部署与操作指南](blog-ml-agent-practice-guide.md)：面向实施团队，介绍工具接入、环境配置和主要操作流程。需要了解示例计算细节的读者，可继续查看[数据与结果说明](blog-ml-agent-validation.md)。
 
 ### 扩展到新的分析任务
 
